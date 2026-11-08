@@ -2,8 +2,7 @@
 
 Memchentic stores memories in **spaces**. Every memory is one of two **kinds**:
 an **entry** or a **guide**. They share the same store and ACL, but they are
-shaped for different jobs — so agents and humans write and recall them through
-different tools.
+shaped for different jobs.
 
 | Kind | One-line job |
 | --- | --- |
@@ -35,31 +34,11 @@ repeatable “if this, then that” playbook (that is a guide).
 Skip transient status, todos, raw logs, guesses, secrets, and facts that are
 already obvious from the code alone.
 
-### How entries work
-
-| Concern | Behavior |
-| --- | --- |
-| Create | MCP `remember` (or the matching REST/GUI create) |
-| Near-duplicates | **Refused** when title+body similarity is at or above
-  `NEAR_DUP_THRESHOLD` (default `0.92`) in the same space — pass `force` to
-  create anyway |
-| Classification | Closed **type** enum (below). Types are labels for filtering and
-  agent judgment — the server does **not** run a different pipeline per type |
-| Path scoping | Optional `path_hint` / `repo_hint` so `about_path` and filtered
-  `find` can surface code-tied memories |
-| Expiry | Optional `expires_at` metadata; search does **not** hide expired rows —
-  extend or clear via `revise` |
-| Patch / delete / move | `revise`, `forget`, `relocate` |
-| Recall | MCP `find` defaults to **entries only**; digests first, then `open`
-  for the full body |
-
-Shared tools that also apply to guides: `open`, `revise`, `forget`, `browse`,
-`since`, `by_tag`, `relocate`, `trace`, `about_path`, `overlap_report`.
-
 ### Entry types
 
-Pick the best label on every `remember`. Prefer a specific type over the API
-default `note`.
+Every entry has one closed **type**. Types are labels for filtering and
+judgment — the server does **not** run a different pipeline per type. Prefer a
+specific type over the default `note`.
 
 | Type | Use when | Example |
 | --- | --- | --- |
@@ -71,8 +50,8 @@ default `note`.
 | `insight` | Learned non-obvious finding (bug, quirk, workflow) | “Pytest in the app container always uses DB `memchentic_test`, never the live volume.” |
 | `note` | Catch-all when nothing else fits | Short scratch that still deserves persistence |
 
-Guides are **not** an entry type. Do not invent a type named `guide` on
-`remember` — use `guide_write`.
+Guides are **not** an entry type — use a guide when the value is reusable
+advice, not a typed record.
 
 ## Guides
 
@@ -96,23 +75,8 @@ Avoid Z = <failure mode or anti-pattern>
 Context: <optional short evidence or verification note>
 ```
 
-### How guides work
-
-| Concern | Behavior |
-| --- | --- |
-| Create / reinforce | MCP `guide_write` |
-| Near-duplicates | **Upsert**: matching guide in the same space is updated; its
-  **confidence** increases by `1.0` (starts at `1.0` on first write). There is
-  no `force` flag |
-| Classification | No entry `type` — `entry_type` is null; kind is `guide` |
-| Path / expiry knobs | Not on `guide_write` (path hints and expiry are
-  remember-oriented; patch via `revise` if needed) |
-| Ranking | `guide_find` hybrid-searches guides, then boosts score by confidence
-  (roughly hybrid score × `(1 + 0.1 × confidence)`) so reinforced advice rises |
-| Patch / delete | Same as entries: `revise` / `forget` |
-
-Use `guide_find` when you want advice. Use `find` when you want typed records.
-Agents usually call **both** at the start of meaningful work.
+Repeating a near-identical guide updates the existing one and raises its
+**confidence**, so reinforced advice ranks higher on later recall.
 
 ## Entry vs guide — choose deliberately
 
@@ -120,10 +84,8 @@ Agents usually call **both** at the start of meaningful work.
 | --- | --- | --- |
 | What am I storing? | A record of truth, preference, or outcome | A playbook for a recurring situation |
 | Will I quote it as “this is so”? | Yes | Sometimes, but mainly “do this when…” |
-| Should repeats create a new row? | No — refuse unless `force` | No — merge and raise confidence |
-| Do I need a type label for filters? | Yes (`fact`, `decision`, …) | No |
-| Code-path recall (`about_path`)? | First-class via `path_hint` / `repo_hint` | Secondary (body may still mention paths) |
-| Primary search tool | `find` | `guide_find` |
+| Do I need a type label (`fact`, `decision`, …)? | Yes | No |
+| Should repeats strengthen the same memory? | No — keep distinct records | Yes — merge and raise confidence |
 
 **Write both** when the same insight is a durable fact *and* a standing rule
 (for example: an architecture decision entry plus a guide that says how to
@@ -135,12 +97,10 @@ must not leave the session (secrets, tokens, private personal data).
 ## Search and embeddings
 
 Vectors are derived from title + body on write (hardcoded MiniLM ONNX, 384-d).
-Search is **hybrid**: full-text plus pgvector, fused for ranking. Tools return
-**digests** (id, title, score, snippet, kind/type, tags, space). Call `open`
-for the full body.
+Search is **hybrid**: full-text plus pgvector, fused for ranking. Results start
+as short **digests**; open the full body when you need the text.
 
-Path-scoped recall uses `about_path` with a path and optional repo hint
-(matches `path_hint` or body text). Hygiene without auto-delete:
-`overlap_report`, then merge via `revise` / `forget`.
+Path-scoped recall can match path/repo hints or body text. Hygiene reports
+near-duplicates without auto-deleting — merge or forget deliberately.
 
-Tool inventory and the suggested agent loop: {doc}`mcp-tools`.
+Create, search, and patch tool names: {doc}`mcp-tools`.
