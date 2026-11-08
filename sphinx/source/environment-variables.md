@@ -16,7 +16,7 @@ image Compose starts).
 | Variable | Default | Description |
 | --- | --- | --- |
 | `COMPOSE_FILE` | `docker-compose.yaml` | Compose file list for the sticky `.env` in `docker/`. |
-| `APPLICATION_IMAGE` | `ghcr.io/memchentic/memchentic:<tag>` | Image Compose pulls for the `application` service. |
+| `APPLICATION_IMAGE` | `ghcr.io/memchentic/memchentic:latest` | Image Compose pulls for the `application` service. |
 | `GUI_PORT` | `18080` | Host port published for GUI `/`. |
 | `API_PORT` | `18081` | Host port published for API `/api`. |
 | `MCP_PORT` | `18082` | Host port published for MCP `/mcp`. |

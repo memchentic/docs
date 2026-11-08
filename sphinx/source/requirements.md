@@ -15,7 +15,7 @@ Postgres with pgvector.
 
 | Component | Requirement |
 | --- | --- |
-| Application image | `ghcr.io/memchentic/memchentic:<tag>` (one process on `:8080` — GUI `/`, API `/api`, MCP `/mcp`) |
+| Application image | `ghcr.io/memchentic/memchentic:latest` (one process on `:8080` — GUI `/`, API `/api`, MCP `/mcp`; pin a semver if you need a fixed digest) |
 | Database | Postgres **16** with **pgvector** (Compose and the Helm chart default to `pgvector/pgvector:pg16`) |
 | Persistent volume | Durable storage for Postgres data (Compose named volume or a Kubernetes PVC) |
 

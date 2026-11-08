@@ -2,7 +2,7 @@
 
 Pull the published image from GHCR and run it with Postgres + pgvector.
 
-Image: `ghcr.io/memchentic/memchentic:<tag>`
+Image: `ghcr.io/memchentic/memchentic:latest` (semver tags also published; `latest` moves on each release)
 
 ## What you need
 
@@ -63,7 +63,7 @@ services:
       retries: 10
 
   memchentic:
-    image: ghcr.io/memchentic/memchentic:0.0.5
+    image: ghcr.io/memchentic/memchentic:latest
     depends_on:
       memchentic-db:
         condition: service_healthy

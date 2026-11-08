@@ -3,7 +3,7 @@
 The chart deploys the single application image (FastAPI + FastMCP + React SPA)
 and optional in-cluster pgvector Postgres.
 
-Default image: `ghcr.io/memchentic/memchentic` (tag pinned in `values.yaml`).
+Default image: `ghcr.io/memchentic/memchentic:latest` (`image.pullPolicy: Always` so floating tags refresh).
 
 ## Install
 
