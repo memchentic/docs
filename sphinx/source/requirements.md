@@ -11,9 +11,6 @@ Postgres with pgvector.
 | Docker Compose | Docker Engine with Compose v2, and enough host ports free for the GUI / API / MCP publishes |
 | Kubernetes (Helm) | A cluster you can install into, plus Helm 3 |
 
-You do **not** need a separate Redis, message bus, or embedding API. The
-application image already includes the MiniLM ONNX model used for vectors.
-
 ## Runtime components
 
 | Component | Requirement |
