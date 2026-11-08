@@ -16,16 +16,17 @@ groups are where shared entries and guides live.
 ## Creating and belonging
 
 - Any authenticated user can create a group (`space_create` / the GUI).
-- The creator is added as the first member and may manage the roster (add /
-  remove members, rename, archive).
-- Other members can use the group's memories but cannot manage membership.
+- The creator owns the group: manage roster (add / remove members, rename) and
+  delete the group (hard delete; memories in that space go with it).
+- Other members can use the group's memories but cannot manage membership or
+  delete the group. They may leave.
 - There is no role ladder (no owner / member / viewer flags beyond creator vs
   everyone else).
 - You cannot remove the group creator from the roster.
-- Archived groups drop out of normal listing and name resolution.
 
 Admin (`ADMIN_API_KEY` / admin login) is break-glass: can see and manage across
-groups. Prefer a per-user API key or JWT for normal agent sessions.
+groups, including delete. Prefer a per-user API key or JWT for normal agent
+sessions.
 
 ## Writing into a group
 
