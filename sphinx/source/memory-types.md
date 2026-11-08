@@ -1,106 +1,99 @@
 # Memory Types
 
-Memchentic stores memories in **spaces**. Every memory is one of two **kinds**:
-an **entry** or a **guide**. They share the same store and ACL, but they are
-shaped for different jobs.
+Memchentic keeps long-lived knowledge in **spaces**. Every memory is one of
+two kinds: an **entry** or a **guide**.
 
-| Kind | One-line job |
+| Kind | In plain terms |
 | --- | --- |
-| **Entry** | A durable *record* — something that happened, was decided, or is true |
-| **Guide** | Reusable *advice* — when situation X occurs, do Y (and avoid Z) |
+| **Entry** | Something worth *remembering* — a fact, preference, decision, or lesson |
+| **Guide** | Something worth *following again* — standing advice for a recurring situation |
 
-Same insight can be both: save the fact as an entry **and** the standing rule
-as a guide when you need the record *and* the procedure later.
+They live in the same places and share the same privacy rules. The difference
+is the job each one is for.
+
+The same idea can show up as both when you want the record *and* the playbook
+(for example a decision you made, plus the habit you want next time).
 
 ## Spaces
 
-Memories live in a **space**: your **personal** space (private, created with
-the account) or an optional shared **group**. Omit `space_id` on writes →
-personal. Groups, membership, and write-target resolution:
-{doc}`groups`.
+Memories belong to a **space**: your private **personal** space, or an
+optional shared **group**. Personal is the default. Shared groups are covered
+in {doc}`groups`.
 
 ## Entries
 
-An **entry** is a typed durable record. Use it when you care about *what is
-true*, *what was chosen*, or *what was learned* — not when you mainly need a
-repeatable “if this, then that” playbook (that is a guide).
+An **entry** is a durable record. Save one when the important part is *what
+is true*, *what you chose*, or *what you learned*.
 
-### What makes a good entry
+Good entries tend to:
 
-- It stays useful after this chat ends.
-- A future agent (or you) would otherwise rediscover it the hard way.
-- It is concrete: a named decision, a root cause, a preference, a path quirk.
+- Still matter after the current conversation ends
+- Save someone from rediscovering the same hard-won detail later
+- Name something concrete — a preference, a decision, a root cause, a quirk
 
-Skip transient status, todos, raw logs, guesses, secrets, and facts that are
-already obvious from the code alone.
+Skip chatter, unfinished todos, raw dumps, guesses, and secrets. Skip things
+that are already obvious without storing them.
 
 ### Entry types
 
-Every entry has one closed **type**. Types are labels for filtering and
-judgment — the server does **not** run a different pipeline per type. Prefer a
-specific type over the default `note`.
+Every entry has a **type**. The type is a label so you can filter and scan
+memories more easily — it does not change how the memory is stored or searched.
 
-| Type | Use when | Example |
+| Type | Meaning | Example |
 | --- | --- | --- |
-| `fact` | Stable truth about the world or codebase | “Compose project name is `memchentic`; services are `postgres` and `application`.” |
-| `preference` | How someone wants work done | “Never put localhost in user-facing URLs; resolve a host address first.” |
-| `decision` | A choice and its rationale | “Live memory bus uses Postgres `NOTIFY` on channel `memchentic_memory` — no Redis.” |
-| `instruction` | Standing always/never directive for agents | “Do not commit or push unless the user asks.” |
-| `feedback` | Correction after a mistake | “User ruled out legacy shims — hard-cut only on API changes.” |
-| `insight` | Learned non-obvious finding (bug, quirk, workflow) | “Pytest in the app container always uses DB `memchentic_test`, never the live volume.” |
-| `note` | Catch-all when nothing else fits | Short scratch that still deserves persistence |
+| `fact` | A stable truth | “Production publishes the GUI on port 18080.” |
+| `preference` | How someone wants work done | “Prefer short answers unless detail is asked for.” |
+| `decision` | A choice and why | “Docs ship as their own image, separate from the app.” |
+| `instruction` | A standing always / never rule | “Never commit unless asked.” |
+| `feedback` | A correction after a mistake | “Hard-cut API changes — no legacy shims.” |
+| `insight` | A non-obvious lesson | “The test database is separate from the live one.” |
+| `note` | Anything that does not fit cleanly above | A short durable scratch note |
 
-Guides are **not** an entry type — use a guide when the value is reusable
-advice, not a typed record.
+A guide is its own kind of memory, not an entry type. If what you need is
+reusable advice rather than a labeled record, use a guide.
 
 ## Guides
 
-A **guide** is reusable procedural advice. Use it when the value is *how to
-act next time*, especially in a **when X → do Y / avoid Z** shape.
+A **guide** is reusable advice. Save one when the important part is *what to
+do next time* — especially “when this happens, do that, and avoid the other
+thing.”
 
-### What makes a good guide
+Good guides tend to:
 
-- It generalizes beyond one incident.
-- An agent can apply it without reopening the original ticket or chat.
-- Re-stating the same advice later should *strengthen* it, not create a twin
-  row.
+- Apply to more than one incident
+- Stay useful without rereading the original conversation
+- Get stronger when the same advice is confirmed again, instead of spawning
+  near-duplicate copies
 
-Typical bodies read like:
+A natural shape looks like:
 
 ```text
-When X = <situation or trigger>:
-do Y = <preferred action>
-Avoid Z = <failure mode or anti-pattern>
+When this situation comes up:
+do this
+Avoid that
 
-Context: <optional short evidence or verification note>
+Optional context: why this advice stuck
 ```
 
-Repeating a near-identical guide updates the existing one and raises its
-**confidence**, so reinforced advice ranks higher on later recall.
+When similar guide content is saved again, Memchentic updates the existing
+guide and raises its **confidence**. Higher confidence means that advice ranks
+more strongly when you search later.
 
-## Entry vs guide — choose deliberately
+## Choosing entry or guide
 
-| Question | Prefer entry | Prefer guide |
-| --- | --- | --- |
-| What am I storing? | A record of truth, preference, or outcome | A playbook for a recurring situation |
-| Will I quote it as “this is so”? | Yes | Sometimes, but mainly “do this when…” |
-| Do I need a type label (`fact`, `decision`, …)? | Yes | No |
-| Should repeats strengthen the same memory? | No — keep distinct records | Yes — merge and raise confidence |
+| If you mainly need… | Choose |
+| --- | --- |
+| A record of what is true or what was decided | **Entry** |
+| A playbook for a situation that will come up again | **Guide** |
+| Both the record and the playbook | **Both** |
+| Something temporary, unverified, or secret | **Neither** |
 
-**Write both** when the same insight is a durable fact *and* a standing rule
-(for example: an architecture decision entry plus a guide that says how to
-extend that subsystem without breaking the rule).
+## Finding memories later
 
-**Write neither** for one-shot chatter, unverified guesses, or anything that
-must not leave the session (secrets, tokens, private personal data).
+Search blends keyword matching with meaning similarity. You usually see a
+short summary first, then open the full text when you need it. Guides can
+rank higher as their confidence grows. Path hints help when a memory is tied
+to a file or project tree.
 
-## Search and embeddings
-
-Vectors are derived from title + body on write (hardcoded MiniLM ONNX, 384-d).
-Search is **hybrid**: full-text plus pgvector, fused for ranking. Results start
-as short **digests**; open the full body when you need the text.
-
-Path-scoped recall can match path/repo hints or body text. Hygiene reports
-near-duplicates without auto-deleting — merge or forget deliberately.
-
-Create, search, and patch tool names: {doc}`mcp-tools`.
+How clients create and search these (GUI, REST, or MCP) is covered under
+{doc}`mcp-tools`.
