@@ -2,14 +2,15 @@
 
 Run Memchentic with Docker Compose: the app plus Postgres with vector search.
 
-Image: `ghcr.io/memchentic/memchentic:latest` (version tags are also published;
-`latest` moves with each release)
+Image: `registry.memchentic.ai/memchentic/memchentic:latest` (preferred registry).
+Version tags are also published; `latest` moves with each release. The same tags are
+mirrored to `ghcr.io/memchentic/memchentic`.
 
 ## What you need
 
 | Piece | Notes |
 | --- | --- |
-| Memchentic image | From GHCR as above |
+| Memchentic image | From the registry as above (anonymous pull) |
 | Postgres 16 with pgvector | `pgvector/pgvector:pg16` works |
 | Secrets | Strong `ADMIN_PASSWORD` and `ADMIN_API_KEY` (16+ characters each) |
 
@@ -60,7 +61,7 @@ services:
       retries: 10
 
   memchentic:
-    image: ghcr.io/memchentic/memchentic:latest
+    image: registry.memchentic.ai/memchentic/memchentic:latest
     depends_on:
       memchentic-db:
         condition: service_healthy

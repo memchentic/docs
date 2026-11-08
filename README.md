@@ -3,7 +3,8 @@
 User-facing Sphinx (MyST) documentation for
 [memchentic](https://github.com/memchentic/memchentic).
 
-Published image: `ghcr.io/memchentic/docs:<tag>` (nginx serving built HTML).
+Published image: `registry.memchentic.ai/memchentic/docs:<tag>` (preferred; nginx serving built HTML).
+Mirrored to `ghcr.io/memchentic/docs:<tag>`.
 
 ## Layout
 
@@ -12,7 +13,7 @@ Published image: `ghcr.io/memchentic/docs:<tag>` (nginx serving built HTML).
 | `sphinx/` | Sphinx project (`source/`, requirements) |
 | `assets/` | Brand marks used by the product README |
 | `docker/` | Image Dockerfile + nginx config |
-| `.github/workflows/publish-docs-image.yml` | Manual multi-arch GHCR publish |
+| `.github/workflows/publish-docs-image.yml` | Manual multi-arch publish (Zot + GHCR) |
 
 ## Local preview
 

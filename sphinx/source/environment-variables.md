@@ -15,7 +15,7 @@ host ports; they are not application feature toggles.
 | Variable | Default | Description |
 | --- | --- | --- |
 | `COMPOSE_FILE` | `docker-compose.yaml` | Which Compose files to load. |
-| `APPLICATION_IMAGE` | `ghcr.io/memchentic/memchentic:latest` | Image for the Memchentic service. |
+| `APPLICATION_IMAGE` | `registry.memchentic.ai/memchentic/memchentic:latest` | Image for the Memchentic service (preferred registry; GHCR mirror available). |
 | `GUI_PORT` | `18080` | Host port for the web UI. |
 | `API_PORT` | `18081` | Host port for the HTTP API. |
 | `MCP_PORT` | `18082` | Host port for agent / MCP connections. |

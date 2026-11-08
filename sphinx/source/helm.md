@@ -4,7 +4,7 @@ Install Memchentic on Kubernetes with the chart in this repository. The chart
 can run its own Postgres with vector search, or point at a database you
 already have.
 
-Default image: `ghcr.io/memchentic/memchentic:latest`
+Default image: `registry.memchentic.ai/memchentic/memchentic:latest` (preferred; mirrored to GHCR)
 
 ## Install
 
