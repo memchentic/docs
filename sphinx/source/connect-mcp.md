@@ -1,51 +1,43 @@
 # Connect MCP
 
-Point your agent harness at the Memchentic MCP endpoint and authenticate.
-Without a live connection, marketplace recall/capture craft stays idle.
+Point your coding agent at Memchentic so it can save and recall memories.
+Without a working connection, the optional marketplace plugin stays idle.
 
-Principals come from the connection credentials. The server never trusts a
-client-supplied user id.
+## Where to point it
 
-## Endpoint
-
-The MCP mounts at `/mcp` on the application listener.
+Use the MCP URL for your Memchentic server:
 
 | Setup | Typical URL |
 | --- | --- |
-| Repo Compose defaults | `http://your-host:18082/mcp` |
-| Reverse proxy / single port | `https://your-host/mcp` |
+| Default Compose ports | `http://your-host:18082/mcp` |
+| Reverse proxy / one public site | `https://your-host/mcp` |
 
-`your-host` is whatever machine or DNS name reaches the running server — not
-loopback on your laptop unless the server is actually local to that machine.
+`your-host` is the machine or DNS name that reaches *your* Memchentic
+server — not your laptop unless the server is actually running there.
 
-## Choose how to authenticate
+## Choose how to sign in
 
 | Method | When to use |
 | --- | --- |
-| MCP Authorize (OAuth) | Preferred when the harness has an **Authorize** / **Needs login** control (Cursor and similar) |
-| Per-user API key | Harnesses that only support a static `Authorization` header, or headless agents |
-| `ADMIN_API_KEY` | Break-glass only — same principal as `ADMIN_EMAIL` |
+| Authorize (browser login) | Preferred when your harness has an **Authorize** / **Needs login** control (Cursor and similar) |
+| Personal API key | Harnesses that only support a fixed Authorization header, or headless agents |
+| Admin API key | Break-glass only |
 
-## Authorize (OAuth button)
+## Authorize (browser login)
 
-Use this when the harness can open a browser login for the MCP server.
-With the default `OAUTH_PROVIDER=internal`, Memchentic shows its own authorize
-page (email + password, then **Authorize**).
+1. Add an HTTP MCP server with **only** the MCP URL — no Authorization header
+   and no API key in the config.
+2. In the harness, open that server and use **Authorize**, **Needs login**, or
+   the equivalent (in Cursor: MCP settings → the server → authenticate /
+   Authorize).
+3. Confirm the client name looks right, then sign in with your Memchentic
+   email and password and click **Authorize**.
+4. When the browser returns to the harness, the server should show as
+   connected and tools become available.
 
-1. Add an HTTP MCP server with only the `/mcp` URL — **no**
-   `Authorization` header and **no** API key in the config.
-2. In the harness MCP UI, open the server and use **Authorize**,
-   **Needs login**, or the equivalent control (Cursor: MCP settings → the
-   server entry → authenticate / Authorize).
-3. The harness registers itself with Memchentic, then opens a browser page
-   titled **memchentic Authorize**. Confirm the client name and redirect host
-   match the app you started from.
-4. Sign in with your Memchentic email and password, then click **Authorize**.
-5. The browser returns to the harness. The connection should show as connected
-   / authenticated; tools become available to the agent.
-
-You need an account first. Register or sign in via the GUI, then return to
-Authorize. New users cannot create an account on the authorize page itself.
+You need an account first. Create one or sign in through the Memchentic web
+UI, then come back to Authorize. New accounts are not created on the
+authorize page itself.
 
 Example Cursor-style config (URL only):
 
@@ -59,31 +51,24 @@ Example Cursor-style config (URL only):
 }
 ```
 
-After Authorize succeeds, the harness stores and refreshes the token. You do
-not paste a JWT into config.
+After Authorize succeeds, the harness keeps the session refreshed. You do not
+paste a token into config.
 
-When `OAUTH_PROVIDER` is an external IdP, the same harness **Authorize**
-control still starts the flow; browser login is that IdP instead of the
-internal authorize form. Register
-`{BASE_URL}/api/auth/oauth/callback` on the IdP for GUI Continue-with; MCP
-clients use dynamic registration against Memchentic’s OAuth endpoints.
+If your site uses an external login provider (Google, Okta, and so on), the
+same **Authorize** control starts that provider’s login instead of the built-in
+email/password form. Operators must register the callback URL from
+{doc}`environment-variables` on that provider.
 
-## API key
+## Personal API key
 
-Use a per-user key when the harness cannot run Authorize, or when you want a
-long-lived Bearer secret in config.
-
-1. Sign in to the Memchentic GUI.
+1. Sign in to the Memchentic web UI.
 2. Open the account menu → **API Keys**.
-3. **Generate key** (or **Cycle key** to replace an existing one). Copy the
-   secret immediately — it is shown once.
-4. Point the harness at `/mcp` and send the key as a Bearer token.
+3. **Generate key** (or **Cycle key**). Copy it immediately — it is shown once.
+4. Point the harness at the MCP URL and send the key as a Bearer token.
 
 ```text
 Authorization: Bearer <your-api-key>
 ```
-
-Example config many hosts accept:
 
 ```json
 {
@@ -98,36 +83,33 @@ Example config many hosts accept:
 }
 ```
 
-The key acts as you: personal space plus every group you belong to. Admins can
-cycle keys for directory users from the same page. Prefer a per-user key over
-`ADMIN_API_KEY` for day-to-day agents.
+The key acts as you: your personal space and every group you belong to. Prefer
+a personal key over the admin API key for everyday agents.
 
-Do not put both an API key header and OAuth Authorize on the same server
-entry — pick one method.
+Do not put both an API key and Authorize on the same server entry — pick one.
 
-## Configure by harness
+## By harness
 
-Exact labels differ; the shape is the same.
+Labels differ; the idea is the same.
 
-**Cursor** — Settings → MCP → add a server with the `/mcp` URL. Prefer
-Authorize (URL only), then use the server’s authenticate / Authorize control.
-For a static key, add the `Authorization` header as above.
+**Cursor** — Settings → MCP → add the MCP URL. Prefer Authorize (URL only).
+For a static key, add the Authorization header as above.
 
-**Claude Code** — add Memchentic to the project or user MCP config with the
-same URL; use Authorize when the host supports it, otherwise the Bearer
-header.
+**Claude Code** — add Memchentic to project or user MCP config with the same
+URL; Authorize when available, otherwise the Bearer header.
 
-**GitHub Copilot / Codex** — register an MCP server against the same URL and
-credentials in that harness’s MCP settings.
+**GitHub Copilot / Codex** — register the same URL and credentials in that
+product’s MCP settings.
 
-If the host uses a different schema key (for example `servers` instead of
+If the host uses a different config key (for example `servers` instead of
 `mcpServers`), keep the URL and auth values the same.
 
 ## Check it worked
 
-- The harness shows the Memchentic server as connected / authenticated.
-- The agent can call tools such as `me` or `space_list`.
-- GUI Memories updates when the agent writes (if you have the page open).
+- The harness shows Memchentic as connected / authenticated.
+- The agent can use basic tools such as showing who you are or listing spaces.
+- If you have the Memories page open, new saves from the agent appear there.
 
-Tool reference: {doc}`mcp-tools`. Run the server: {doc}`docker` or
-{doc}`helm`. Teach the harness the memory loop: {doc}`install-marketplace`.
+What the tools do: {doc}`mcp-tools`. Running the server: {doc}`docker` or
+{doc}`helm`. Optional plugin for recall/capture habits:
+{doc}`install-marketplace`.

@@ -1,52 +1,44 @@
 # Groups
 
-A **group** is a shared memory space. Every member can read and write memories
-in that space. Groups are optional — personal memory works without them.
+A **group** is a shared place for memories. Everyone in the group can read and
+write there. Groups are optional — personal memory works on its own.
 
 ```text
 you
-  ├── personal     private; only you; not a group
+  ├── personal     private; only you
   └── groups[]     shared spaces you belong to
 ```
 
-This is not the same thing as **User Groups** in System Settings
-(Administrators / Users). Those control who may sign in as admin. Memory
-groups are where shared entries and guides live.
+This is not the same as **User Groups** under System Settings
+(Administrators / Users). Those control who may sign in as an administrator.
+Memory groups are only about sharing entries and guides.
 
 ## Creating and belonging
 
-- Any authenticated user can create a group (`space_create` / the GUI).
-- The creator owns the group: manage roster (add / remove members, rename) and
-  delete the group (hard delete; memories in that space go with it).
-- Other members can use the group's memories but cannot manage membership or
-  delete the group. They may leave.
-- There is no role ladder (no owner / member / viewer flags beyond creator vs
-  everyone else).
-- You cannot remove the group creator from the roster.
+- Any signed-in user can create a group from the web UI (or via a connected
+  agent).
+- The creator owns the group: invite or remove people, rename it, and delete
+  it. Deleting a group also deletes the memories in it.
+- Other members can use the group’s memories, leave the group, and otherwise
+  cannot manage the roster or delete the group.
+- There is no separate viewer / editor ladder beyond creator vs everyone else.
+- The creator cannot be removed from the roster.
 
-Admin (`ADMIN_API_KEY` / admin login) is break-glass: can see and manage across
-groups, including delete. Prefer a per-user API key or JWT for normal agent
-sessions.
+An admin account can manage groups across the site when needed. Everyday use
+should be your own user account.
 
-## Writing into a group
+## Where new memories go
 
-`remember` / `guide_write` pick the target in this order:
+When you (or an agent) save a memory, you choose a destination:
 
-1. `space_id` — that space (you must be a member).
-2. `group` — exact, case-insensitive name among your unarchived groups.
-3. `visibility="shared"` — your default shared group, else your only group;
-   otherwise an error.
-4. Otherwise → personal.
+1. A specific group you belong to, or
+2. Your default shared group (if you set one), or
+3. Otherwise your **personal** space.
 
-A memory lives in exactly one space. Visibility is that space's roster.
+Each memory lives in exactly one space. Who can see it is whoever belongs to
+that space.
 
-## Tools
+## Related
 
-| Tool | Job |
-| --- | --- |
-| `space_list` | Personal space plus groups you belong to |
-| `space_create` | Create a group; you become creator |
-| `space_show` | Detail and members for a space you can see |
-| `me` | Subject, personal space id, and memberships |
-
-See also {doc}`memory-types` and {doc}`mcp-tools`.
+- What entries and guides are: {doc}`memory-types`
+- What a connected agent can do with spaces: {doc}`mcp-tools`

@@ -1,9 +1,10 @@
 # Helm
 
-The chart deploys the single application image (FastAPI + FastMCP + React SPA)
-and optional in-cluster pgvector Postgres.
+Install Memchentic on Kubernetes with the chart in this repository. The chart
+can run its own Postgres with vector search, or point at a database you
+already have.
 
-Default image: `ghcr.io/memchentic/memchentic:latest` (`image.pullPolicy: Always` so floating tags refresh).
+Default image: `ghcr.io/memchentic/memchentic:latest`
 
 ## Install
 
@@ -13,18 +14,17 @@ helm upgrade --install memchentic ./helm \
   -f my-values.yaml
 ```
 
-Set `config.baseUrl` and `config.corsOrigins` to the public URL the GUI and
-OAuth callbacks use. Service is ClusterIP on port **8080**. Ingress is off by
-default (`memchentic.local`, class `nginx`).
+Set `config.baseUrl` and `config.corsOrigins` to the public URL people open in
+the browser. The Service listens on port **8080**. Ingress is off by default.
 
 ## Postgres
 
 | Mode | Values |
 | --- | --- |
-| In-cluster | `postgres.enabled: true` (default) — image `pgvector/pgvector:pg16`, PVC |
+| In-cluster | `postgres.enabled: true` (default) — includes storage |
 | External | `postgres.enabled: false` and `config.postgresHostname: my.db.example` |
 
-`POSTGRES_PASSWORD` always comes from the resolved Secret.
+The database password always comes from the resolved Secret.
 
 ## Secret modes
 
@@ -32,16 +32,16 @@ Set `secrets.mode` to exactly one of:
 
 | Mode | Behavior |
 | --- | --- |
-| `inline` | Chart creates a Secret from `secrets.inline.*` (dev only). |
-| `existing` | Use `secrets.existingSecret` (any sync tool). |
-| `externalSecret` | Chart creates an ExternalSecret; cluster needs External Secrets Operator and a SecretStore. |
+| `inline` | Chart creates a Secret from `secrets.inline.*` (fine for quick trials). |
+| `existing` | Use `secrets.existingSecret` (any secret sync you already run). |
+| `externalSecret` | Chart creates an ExternalSecret; your cluster needs External Secrets Operator and a SecretStore. |
 
 Required Secret keys:
 
 - `ADMIN_PASSWORD`
 - `ADMIN_API_KEY`
 - `POSTGRES_PASSWORD`
-- `OAUTH_CLIENT_SECRET` (may be empty when `OAUTH_PROVIDER=internal`)
+- `OAUTH_CLIENT_SECRET` (may be empty when using built-in email/password login)
 
 Admin password and API key must be at least 16 characters.
 
@@ -71,16 +71,13 @@ secrets:
         property: OAUTH_CLIENT_SECRET
 ```
 
-AWS Secrets Manager and 1Password follow the same shape with the matching ESO
-provider and `remoteRef` fields. See `helm/README.md` in the repo.
+AWS Secrets Manager and 1Password use the same idea with their own provider
+fields. See `helm/README.md` in the repository for more.
 
-## Config highlights
+## Useful settings
 
-`config.*` mirrors Compose env: `baseUrl`, `oauthProvider` (default
-`internal`), admin email, Postgres user/db, near-duplicate threshold, RRF `k`,
-search/browse limits, session lifetimes, CORS, log level.
+`config.*` covers the public URL, login provider (default built-in), admin
+email, database name, search defaults, session lifetimes, CORS, and log level.
+Details: {doc}`environment-variables`.
 
-Chart path: `helm/` (`Chart.yaml` name **memchentic**).
-
-Compose instead? See {doc}`docker`. Environment reference:
-{doc}`environment-variables`.
+Prefer Compose instead? See {doc}`docker`.

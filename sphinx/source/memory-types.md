@@ -37,7 +37,7 @@ that are already obvious without storing them.
 ### Entry types
 
 Every entry has a **type**. The type is a label so you can filter and scan
-memories more easily — it does not change how the memory is stored or searched.
+memories more easily — it does not change how search works under the hood.
 
 | Type | Meaning | Example |
 | --- | --- | --- |
@@ -90,10 +90,7 @@ more strongly when you search later.
 
 ## Finding memories later
 
-Search blends keyword matching with meaning similarity. You usually see a
-short summary first, then open the full text when you need it. Guides can
-rank higher as their confidence grows. Path hints help when a memory is tied
-to a file or project tree.
-
-How clients create and search these (GUI, REST, or MCP) is covered under
-{doc}`mcp-tools`.
+Search looks at both the words you use and the meaning behind them. You
+usually see a short summary first, then open the full text when you need it.
+Guides can rank higher as their confidence grows. Memories can also be tied to
+a file or project path so related work is easier to find again.

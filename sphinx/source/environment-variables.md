@@ -1,73 +1,69 @@
 # Environment Variables
 
-Memchentic reads configuration from the process environment (Compose
-`environment:` / `env_file`, Kubernetes, or your host). There is no separate
-`DATABASE_URL` — the app builds the DSN from the `POSTGRES_*` pieces.
+Settings come from the process environment (Compose, Kubernetes, or your
+host). There is no separate `DATABASE_URL` — database pieces are set with the
+`POSTGRES_*` variables below.
 
 Values marked **required at start** refuse weak placeholders and will not boot
 until you set them.
 
-## Compose client (repo `docker/.env`)
+## Compose ports and image
 
-These affect how Docker Compose runs the stack. They are not read by the
-application process itself (except that `APPLICATION_IMAGE` selects which
-image Compose starts).
-
-| Variable | Default | Description |
-| --- | --- | --- |
-| `COMPOSE_FILE` | `docker-compose.yaml` | Compose file list for the sticky `.env` in `docker/`. |
-| `APPLICATION_IMAGE` | `ghcr.io/memchentic/memchentic:latest` | Image Compose pulls for the `application` service. |
-| `GUI_PORT` | `18080` | Host port published for GUI `/`. |
-| `API_PORT` | `18081` | Host port published for API `/api`. |
-| `MCP_PORT` | `18082` | Host port published for MCP `/mcp`. |
-
-All three host ports map to the same container listener on `:8080`.
-
-## Application URL and HTTP
+These control how Docker Compose publishes the stack. They select the image and
+host ports; they are not application feature toggles.
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `BASE_URL` | `http://localhost:8080` | Public origin browsers and OAuth callbacks use. Also used as the issuer for memchentic-signed session tokens. |
-| `CORS_ORIGINS` | `http://localhost:5173,http://127.0.0.1:5173` | Comma-separated allowed browser origins. |
-| `LOG_LEVEL` | `INFO` | Process log level (standard levels such as `DEBUG`, `INFO`, `WARNING`, `ERROR`). |
+| `COMPOSE_FILE` | `docker-compose.yaml` | Which Compose files to load. |
+| `APPLICATION_IMAGE` | `ghcr.io/memchentic/memchentic:latest` | Image for the Memchentic service. |
+| `GUI_PORT` | `18080` | Host port for the web UI. |
+| `API_PORT` | `18081` | Host port for the HTTP API. |
+| `MCP_PORT` | `18082` | Host port for agent / MCP connections. |
+
+## Public URL and logging
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `BASE_URL` | `http://localhost:8080` | Public origin browsers and login callbacks use. |
+| `CORS_ORIGINS` | `http://localhost:5173,http://127.0.0.1:5173` | Comma-separated allowed browser origins. Set this to your real UI URL in production. |
+| `LOG_LEVEL` | `INFO` | Log level (`DEBUG`, `INFO`, `WARNING`, `ERROR`, …). |
 
 ## Admin bootstrap
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `ADMIN_EMAIL` | `admin@example.com` | Login email for the break-glass admin principal. Empty falls back to `admin@example.com`. |
-| `ADMIN_DISPLAY_NAME` | `Admin` | Display name for that admin user. |
-| `ADMIN_PASSWORD` | *(must set)* | **Required at start.** Password for the admin user. Rejected if empty, a known placeholder (`change-me`), or shorter than 16 characters. |
-| `ADMIN_API_KEY` | *(must set)* | **Required at start.** Break-glass API key (same admin principal). Rejected if empty, a known placeholder (`change-me-admin-api-key`), or shorter than 16 characters. Prefer a per-user API key from the GUI for day-to-day agents. |
+| `ADMIN_EMAIL` | `admin@example.com` | Email for the first admin account. |
+| `ADMIN_DISPLAY_NAME` | `Admin` | Display name for that admin. |
+| `ADMIN_PASSWORD` | *(must set)* | **Required at start.** At least 16 characters; not a known placeholder. |
+| `ADMIN_API_KEY` | *(must set)* | **Required at start.** Break-glass API key for that admin. Prefer a personal API key from the UI for everyday agents. |
 
-## OAuth / identity
+## Login / identity
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `OAUTH_PROVIDER` | `internal` | Identity mode. One of: `internal`, `google`, `github`, `okta`, `authentik`, `keycloak`, `auth0`, `entra`, `gitlab`, `generic`. |
-| `OAUTH_CLIENT_ID` | *(empty)* | IdP client id. Required for browser “Continue with …” when the provider is not `internal`. |
-| `OAUTH_CLIENT_SECRET` | *(empty)* | IdP client secret. May be empty when `OAUTH_PROVIDER=internal`. |
-| `OAUTH_ISSUER` | *(empty)* | External IdP issuer URL. Used when the provider is not `internal` (falls back to `BASE_URL` if unset). |
-| `OAUTH_AUDIENCE` | *(empty)* | Expected audience claim. Defaults to `{BASE_URL}/mcp` when unset. |
-| `OAUTH_JWKS_URI` | *(empty)* | JWKS URL for verifying IdP tokens when using an external provider. |
-| `OAUTH_SCOPES` | `openid,profile,email` | Comma-separated scopes requested from the IdP. |
+| `OAUTH_PROVIDER` | `internal` | `internal` (built-in email/password) or an external provider: `google`, `github`, `okta`, `authentik`, `keycloak`, `auth0`, `entra`, `gitlab`, `generic`. |
+| `OAUTH_CLIENT_ID` | *(empty)* | Client id from the external provider. |
+| `OAUTH_CLIENT_SECRET` | *(empty)* | Client secret. May be empty for `internal`. |
+| `OAUTH_ISSUER` | *(empty)* | Issuer URL for an external provider. |
+| `OAUTH_AUDIENCE` | *(empty)* | Expected audience claim when verifying provider tokens. |
+| `OAUTH_JWKS_URI` | *(empty)* | JWKS URL for verifying provider tokens. |
+| `OAUTH_SCOPES` | `openid,profile,email` | Scopes requested from the provider. |
 
-When `OAUTH_PROVIDER` is not `internal`, register this redirect URI on the IdP:
+When `OAUTH_PROVIDER` is not `internal`, register this redirect URI on the
+provider:
 
 ```text
 {BASE_URL}/api/auth/oauth/callback
 ```
 
-The same client id drives MCP harness Authorize and GUI Continue-with.
-
 ## Registration and sessions
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `REGISTER_ENABLED` | `true` | Allow public self-registration when using `OAUTH_PROVIDER=internal`. Also toggleable later in System Settings. |
-| `SESSION_REMEMBER_DAYS` | `30` | Lifetime (days) for “remember me” GUI sessions. Minimum `1`. |
+| `REGISTER_ENABLED` | `true` | Allow public self-registration for built-in login. Also toggleable later in System Settings. |
+| `SESSION_REMEMBER_DAYS` | `30` | Lifetime (days) for “remember me” sessions. Minimum `1`. |
 | `SESSION_BROWSER_HOURS` | `12` | Lifetime (hours) for normal browser sessions. Minimum `1`. |
-| `SESSION_COOKIE_SECURE` | *(derived)* | Force the session cookie `Secure` flag: `true` / `false`. Leave unset or blank to derive from the `BASE_URL` scheme (`https` → secure). |
+| `SESSION_COOKIE_SECURE` | *(derived)* | Force secure cookies: `true` / `false`. Leave unset to follow the `BASE_URL` scheme. |
 
 ## Database
 
@@ -75,23 +71,21 @@ The same client id drives MCP harness Authorize and GUI Continue-with.
 | --- | --- | --- |
 | `POSTGRES_USER` | `memchentic` | Database user. |
 | `POSTGRES_PASSWORD` | `memchentic` | Database password. |
-| `POSTGRES_HOSTNAME` | `postgres` | Hostname of Postgres (Compose service name, or an external host). |
-| `POSTGRES_PORT` | `5432` | Database port (`1`–`65535`). |
+| `POSTGRES_HOSTNAME` | `postgres` | Database hostname. |
+| `POSTGRES_PORT` | `5432` | Database port. |
 | `POSTGRES_DB` | `memchentic` | Database name. |
 
-Postgres must support the `vector` extension (for example `pgvector/pgvector:pg16`).
+Postgres must support the `vector` extension (for example
+`pgvector/pgvector:pg16`).
 
-## Search and recall defaults
-
-MiniLM ONNX embeddings are baked into the image — there are no model path or
-dimension environment variables.
+## Search defaults
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `NEAR_DUP_THRESHOLD` | `0.92` | Cosine similarity threshold used when refusing near-duplicate writes. |
-| `RRF_K` | `60` | Reciprocal rank fusion `k` for hybrid search. |
-| `SEARCH_DEFAULT_LIMIT` | `20` | Default `limit` for search/find-style calls when the client omits it. Minimum `1`. |
-| `BROWSE_DEFAULT_LIMIT` | `50` | Default `limit` for browse/list-style calls when the client omits it. Minimum `1`. |
-| `RESULT_MAX_LIMIT` | `100` | Hard upper clamp applied to any search or browse `limit`. Minimum `1`. |
+| `NEAR_DUP_THRESHOLD` | `0.92` | How similar a new write must be before it is treated as a near-duplicate. |
+| `RRF_K` | `60` | Ranking blend factor for hybrid search. |
+| `SEARCH_DEFAULT_LIMIT` | `20` | Default number of search results when the client does not ask for a limit. |
+| `BROWSE_DEFAULT_LIMIT` | `50` | Default number of browse results when the client does not ask for a limit. |
+| `RESULT_MAX_LIMIT` | `100` | Maximum results allowed for search or browse. |
 
 See also {doc}`docker` and {doc}`helm`.

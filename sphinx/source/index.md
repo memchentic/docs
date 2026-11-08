@@ -66,7 +66,8 @@ The tool set is deliberately small and obvious:
 - **Path-aware recall** — “what do we know about this part of the codebase?”
 - **Housekeeping** — spot overlaps and stale items without silent auto-delete
 
-Enough for a reliable agent loop. Not a zoo of megatools.
+A small set on purpose — enough to remember and find things, not a sprawling
+tool catalog.
 
 ## Why people adopt it
 
@@ -76,8 +77,8 @@ Enough for a reliable agent loop. Not a zoo of megatools.
 - **Operator-owned** — run it where you already run containers; your data stays
   yours
 - **Agent-native** — MCP-first, with a polished UI when humans need it
-- **Original surface** — its own verbs and model, not a thin wrap of someone
-  else's memory product
+- **Its own product** — built for this job, not a thin wrap of someone else's
+  memory server
 
 Ready to try it? Check {doc}`requirements`, then {doc}`docker` or
 {doc}`helm`, then {doc}`connect-mcp` and {doc}`install-marketplace`. Deeper

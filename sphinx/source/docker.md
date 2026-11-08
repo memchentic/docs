@@ -1,25 +1,25 @@
 # Docker
 
-Pull the published image from GHCR and run it with Postgres + pgvector.
+Run Memchentic with Docker Compose: the app plus Postgres with vector search.
 
-Image: `ghcr.io/memchentic/memchentic:latest` (semver tags also published; `latest` moves on each release)
+Image: `ghcr.io/memchentic/memchentic:latest` (version tags are also published;
+`latest` moves with each release)
 
 ## What you need
 
 | Piece | Notes |
 | --- | --- |
-| Application container | One process on `:8080` — GUI `/`, API `/api`, MCP `/mcp` |
-| Postgres 16 + pgvector | Image `pgvector/pgvector:pg16` works; hostname via `POSTGRES_HOSTNAME` |
-| Env / secrets | At least strong `ADMIN_PASSWORD` and `ADMIN_API_KEY` (16+ characters each) |
+| Memchentic image | From GHCR as above |
+| Postgres 16 with pgvector | `pgvector/pgvector:pg16` works |
+| Secrets | Strong `ADMIN_PASSWORD` and `ADMIN_API_KEY` (16+ characters each) |
 
-Migrations run on application startup.
+The first start prepares the database automatically.
 
 ## Ready-made Compose in the repo
 
-This repository already ships a Compose stack under `docker/`
-(`docker-compose.yaml` plus `.env.example`). You can use that as-is, copy
-pieces into your own Compose project, or treat the sketch below as the same
-shape without checking out the rest of the tree.
+The Memchentic repository includes a Compose stack under `docker/`
+(`docker-compose.yaml` and `.env.example`). Use that as-is, or copy the shape
+into your own project.
 
 From a clone:
 
@@ -30,21 +30,18 @@ cp .env.example .env
 docker compose up -d
 ```
 
-Default host publishes (all map to the same container `:8080`):
+Default ports on the host:
 
-| Port env | Default | Path |
+| Port env | Default | Use |
 | --- | --- | --- |
-| `GUI_PORT` | 18080 | `/` |
-| `API_PORT` | 18081 | `/api` |
-| `MCP_PORT` | 18082 | `/mcp` |
+| `GUI_PORT` | 18080 | Web UI |
+| `API_PORT` | 18081 | HTTP API |
+| `MCP_PORT` | 18082 | Agent / MCP connection |
 
-Set `BASE_URL` and `CORS_ORIGINS` to the URL browsers and OAuth callbacks use
-(for example `http://your-host:18080`).
+Set `BASE_URL` and `CORS_ORIGINS` to the URL people open in the browser (for
+example `http://your-host:18080`).
 
 ## Bring your own Compose
-
-Copy this into your own Compose file or merge the services into an existing
-stack. Adjust image tag, ports, passwords, and `BASE_URL` / `CORS_ORIGINS`.
 
 ```yaml
 services:
@@ -68,9 +65,9 @@ services:
       memchentic-db:
         condition: service_healthy
     ports:
-      - "18080:8080"   # GUI /
-      - "18081:8080"   # API /api
-      - "18082:8080"   # MCP /mcp
+      - "18080:8080"   # web UI
+      - "18081:8080"   # HTTP API
+      - "18082:8080"   # agents / MCP
     environment:
       BASE_URL: http://your-host:18080
       CORS_ORIGINS: http://your-host:18080
@@ -89,14 +86,13 @@ volumes:
   memchentic-db-data:
 ```
 
-You can publish a single host port if a reverse proxy terminates TLS and
-routes `/`, `/api`, and `/mcp` to the same upstream.
+You can expose a single public port instead and let a reverse proxy send web
+UI, API, and agent traffic to Memchentic.
 
 ## Existing Postgres
 
-Skip the database service. Set `POSTGRES_HOSTNAME` (and user / password / db)
-to your existing pgvector instance. The application expects a Postgres that
-can load the `vector` extension.
+Skip the database service. Point `POSTGRES_HOSTNAME` (and user / password /
+database name) at a Postgres that supports the `vector` extension.
 
-Full variable reference: {doc}`environment-variables`. For Kubernetes, see
+Full settings list: {doc}`environment-variables`. For Kubernetes, see
 {doc}`helm`.
