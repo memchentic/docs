@@ -40,5 +40,5 @@ that space.
 
 ## Related
 
-- What entries and guides are: {doc}`memory-types`
+- What entries and guides are: {doc}`memory`
 - What a connected agent can do with spaces: {doc}`mcp-tools`

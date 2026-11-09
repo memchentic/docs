@@ -87,5 +87,22 @@ Postgres must support the `vector` extension (for example
 | `SEARCH_DEFAULT_LIMIT` | `20` | Default number of search results when the client does not ask for a limit. |
 | `BROWSE_DEFAULT_LIMIT` | `50` | Default number of browse results when the client does not ask for a limit. |
 | `RESULT_MAX_LIMIT` | `100` | Maximum results allowed for search or browse. |
+| `SEARCH_RECENCY_HALF_LIFE_DAYS` | `30` | Age in days at which a memory's freshness weight drops to half. |
+| `SEARCH_PATH_BOOST` | `0.15` | Extra weight for memories whose path hint matches the search path. |
+| `NEAR_DUP_CANDIDATES` | `5` | How many nearest existing memories are checked for a near-duplicate on write. |
+| `OVERLAP_SCAN_LIMIT` | `2000` | How many recent memories the overlap report scans. |
+
+| `MEMORY_USAGE_SCORE_WEIGHT` | `0.05` | Extra weight for memories that are recalled often. |
+
+## Memory lifetime
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `MEMORY_DEFAULT_TTL_DAYS` | `90` | Days a new memory lives when the caller does not choose a lifetime. `0` makes new memories permanent by default. |
+| `MEMORY_TTL_EXTEND_DAYS` | `90` | Each recall pushes a live memory's expiry to at least this many days from now. |
+| `MEMORY_TTL_TOUCH_DEBOUNCE_HOURS` | `6` | A memory is renewed and counted at most once per this window. |
+| `MEMORY_MAX_TTL_DAYS` | `730` | Renewal never pushes expiry past this many days after creation. `0` removes the ceiling. |
+
+How these combine into a ranking and a lifetime is explained in {doc}`memory`.
 
 See also {doc}`docker` and {doc}`helm`.
