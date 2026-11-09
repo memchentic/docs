@@ -4,6 +4,10 @@ The **Memchentic** plugin teaches your coding agent when to recall, when to
 save, and how to use Memchentic well. Import it from
 `https://github.com/memchentic/memchentic`.
 
+Install the plugin and connect Memchentic. The agent then recalls and captures
+on its own. You do not need to load a skill or run `/memchentic` to start that
+habit.
+
 The plugin does not replace the server. Connect Memchentic separately:
 {doc}`connect-mcp`.
 
@@ -19,6 +23,8 @@ Or from a terminal:
 agent plugin marketplace add https://github.com/memchentic/memchentic.git
 ```
 
+Cursor injects the recall and capture loop through always-on plugin rules.
+
 ## Claude Code
 
 ```shell
@@ -26,8 +32,8 @@ claude plugin marketplace add memchentic/memchentic
 claude plugin install memchentic@memchentic
 ```
 
-On Claude Code, load the Memchentic skill at the start of a session so the
-agent follows the same recall and capture habits.
+Claude Code injects the same loop through the plugin session-start hook after
+install. No manual skill load.
 
 ## GitHub Copilot CLI
 
@@ -36,11 +42,19 @@ copilot plugin marketplace add memchentic/memchentic
 copilot plugin install memchentic@memchentic
 ```
 
+Copilot CLI injects the loop through the plugin `sessionStart` hook after
+install.
+
 ## OpenAI Codex
 
 ```shell
 codex plugin marketplace add memchentic/memchentic
 ```
+
+Codex injects the loop through the plugin `SessionStart` hook. One-time host
+setup: enable `[features] hooks = true` and trust this plugin’s hook (via
+`/hooks` or Settings → Hooks). After that, install is enough — no per-session
+skill load.
 
 ## After install
 
