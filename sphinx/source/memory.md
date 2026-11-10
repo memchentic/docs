@@ -343,6 +343,9 @@ Every new memory gets an expiry date:
 | `ttl_days: 0` or `permanent: true` | Never |
 | `expires_at` | That exact time |
 
+Pass at most one of these; a contradictory combination is rejected.
+`revise` takes the same options, and `guide_write` accepts `expires_at` too.
+
 Agents pick the lifetime when they save: a short one for a temporary
 workaround, the default for an ordinary fact, permanent for a standing rule.
 
