@@ -31,13 +31,20 @@ cp .env.example .env
 docker compose up -d
 ```
 
-Default ports on the host:
+Compose publishes one host port, `GUI_PORT` (default 18080). The web UI, the
+HTTP API (`/api`), and the agent / MCP endpoint (`/mcp`) all share it.
 
-| Port env | Default | Use |
-| --- | --- | --- |
-| `GUI_PORT` | 18080 | Web UI |
-| `API_PORT` | 18081 | HTTP API |
-| `MCP_PORT` | 18082 | Agent / MCP connection |
+The port binds to `BIND_ADDRESS`, which defaults to `127.0.0.1` (this machine
+only). Set `BIND_ADDRESS=0.0.0.0` in `.env` to reach Memchentic from other
+machines, or put a reverse proxy in front of it.
+
+Database migrations run when the container starts. To run them as a separate
+step instead, set `RUN_MIGRATIONS_ON_BOOT=false` and use the one-shot migrate
+overlay:
+
+```bash
+COMPOSE_FILE=docker-compose.yaml:migrate.yaml docker compose up -d
+```
 
 Set `BASE_URL` and `CORS_ORIGINS` to the URL people open in the browser (for
 example `http://your-host:18080`).
@@ -47,7 +54,7 @@ example `http://your-host:18080`).
 ```yaml
 services:
   memchentic-db:
-    image: pgvector/pgvector:pg16
+    image: pgvector/pgvector:0.8.7-pg16
     environment:
       POSTGRES_USER: memchentic
       POSTGRES_PASSWORD: replace-me-db-password
@@ -66,9 +73,7 @@ services:
       memchentic-db:
         condition: service_healthy
     ports:
-      - "18080:8080"   # web UI
-      - "18081:8080"   # HTTP API
-      - "18082:8080"   # agents / MCP
+      - "18080:8080"   # web UI, /api, and /mcp
     environment:
       BASE_URL: http://your-host:18080
       CORS_ORIGINS: http://your-host:18080
