@@ -28,6 +28,8 @@ host ports; they are not application feature toggles.
 | `BASE_URL` | `http://localhost:8080` | Public origin browsers and login callbacks use. |
 | `CORS_ORIGINS` | `http://localhost:5173,http://127.0.0.1:5173` | Comma-separated allowed browser origins. Set this to your real UI URL in production. |
 | `LOG_LEVEL` | `INFO` | Log level (`DEBUG`, `INFO`, `WARNING`, `ERROR`, …). |
+| `ENABLE_API_DOCS` | `false` | Serve the generated REST reference at `/docs`, `/redoc` and `/openapi.json`. Keep it off on any reachable deployment. |
+| `FORWARDED_ALLOW_IPS` | *(unset)* | Read by uvicorn, not by the app settings. Comma-separated addresses or CIDR ranges of the reverse proxy allowed to set `X-Forwarded-For` / `X-Forwarded-Proto`. Set it behind a reverse proxy or ingress; otherwise all clients share one rate-limit bucket. |
 
 ## Admin bootstrap
 
@@ -36,7 +38,8 @@ host ports; they are not application feature toggles.
 | `ADMIN_EMAIL` | `admin@example.com` | Email for the break-glass admin account. Changing it demotes the previous break-glass account to an ordinary user at the next start, and revokes the sessions and API keys the newly named account held before. |
 | `ADMIN_DISPLAY_NAME` | `Admin` | Display name for that admin. |
 | `ADMIN_PASSWORD` | *(must set)* | **Required at start.** At least 16 characters; not a known placeholder. |
-| `ADMIN_API_KEY` | *(must set)* | **Required at start.** Break-glass API key for that admin. Prefer a personal API key from the UI for everyday agents. |
+| `ADMIN_API_KEY` | *(must set)* | **Required at start.** At least 16 characters. Break-glass API key for that admin. Prefer a personal API key from the UI for everyday agents. |
+| `ENCRYPTION_KEY` | *(must set)* | **Required at start.** At least 32 characters. Encrypts the signing keys stored in Postgres; after a change the stored keys cannot be read. |
 
 ## Login / identity
 
@@ -65,17 +68,21 @@ provider:
 | `REGISTER_ENABLED` | `true` | Allow public self-registration for built-in login. With an external `OAUTH_PROVIDER` it gates first-time single sign-on instead; an auth-group IdP bind always admits its members, and a bound Users auth group admits only its members. First-boot value only; afterwards System Settings is the source of truth. |
 | `SESSION_REMEMBER_DAYS` | `30` | Lifetime (days) for “remember me” sessions. Minimum `1`. |
 | `SESSION_BROWSER_HOURS` | `12` | Lifetime (hours) for normal browser sessions. Minimum `1`. |
-| `SESSION_COOKIE_SECURE` | *(derived)* | Force secure cookies: `true` / `false`. Leave unset to follow the `BASE_URL` scheme. |
+| `SESSION_COOKIE_SECURE` | *(derived)* | Force secure cookies: `true` / `false`. Leave unset (or blank) and the cookie is secure unless the `BASE_URL` host is a loopback host. Set `false` only for a plain-`http` origin. |
 
 ## Database
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `POSTGRES_USER` | `memchentic` | Database user. |
-| `POSTGRES_PASSWORD` | `memchentic` | Database password. |
+| `POSTGRES_USER` | `memchentic` | Owner role: owns the tables and runs migrations. |
+| `POSTGRES_PASSWORD` | *(must set)* | **Required at start.** At least 16 characters. Owner-role password. Postgres keeps the value it was first started with. |
+| `POSTGRES_APP_USER` | `memchentic_app` | App role: serves every request; row-level security applies to it. |
+| `POSTGRES_APP_PASSWORD` | *(must set)* | **Required at start.** At least 16 characters. App-role password. |
 | `POSTGRES_HOSTNAME` | `postgres` | Database hostname. |
 | `POSTGRES_PORT` | `5432` | Database port. |
 | `POSTGRES_DB` | `memchentic` | Database name. |
+| `POSTGRES_SSLMODE` | `prefer` | `disable`, `prefer`, `require`, `verify-ca` or `verify-full`. Use `verify-full` for a database on another host. |
+| `POSTGRES_SSLROOTCERT` | *(empty)* | CA file for `verify-ca` / `verify-full`. Empty uses the system CA store. On Helm, mount it with `extraVolumes` / `extraVolumeMounts`. |
 
 Postgres must support the `vector` extension (for example
 `pgvector/pgvector:pg16`).
@@ -95,7 +102,6 @@ Postgres must support the `vector` extension (for example
 | `SEARCH_MIN_SIMILARITY` | `0.2` | Lowest meaning similarity (-1 to 1) at which a memory that matches no query keyword is still returned. `-1` turns the floor off. |
 | `NEAR_DUP_CANDIDATES` | `5` | How many nearest existing memories are checked for a near-duplicate on write. |
 | `OVERLAP_SCAN_LIMIT` | `2000` | How many recent memories the overlap report scans. |
-
 | `MEMORY_USAGE_SCORE_WEIGHT` | `0.05` | Extra weight for memories that are recalled often. |
 
 ## Memory lifetime
@@ -108,5 +114,11 @@ Postgres must support the `vector` extension (for example
 | `MEMORY_MAX_TTL_DAYS` | `730` | Renewal never pushes expiry past this many days after creation. `0` removes the ceiling. |
 
 How these combine into a ranking and a lifetime is explained in {doc}`memory`.
+
+## Development only
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `ALLOW_HASH_EMBEDDINGS` | `false` | Start with hash vectors when the MiniLM model files are missing. Set by the local Compose overlay. Do not use it for data you want to keep: hash and MiniLM vectors cannot be compared. |
 
 See also {doc}`docker` and {doc}`helm`.
