@@ -16,7 +16,7 @@ with vector search.
 | Piece | Requirement |
 | --- | --- |
 | Application image | `registry.memchentic.ai/memchentic/memchentic:latest` (preferred; or a version tag). Mirrored on GHCR. |
-| Database | Postgres **16** with **pgvector** (Compose and the Helm chart default to `pgvector/pgvector:pg16`) |
+| Database | Postgres **16** with **pgvector** (Compose and the Helm chart default to `pgvector/pgvector:0.8.7-pg16`) |
 | Storage | Durable disk for Postgres (a Compose volume or a Kubernetes PVC) |
 
 The first start prepares the database. Point the app at the database with
