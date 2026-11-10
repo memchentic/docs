@@ -162,27 +162,43 @@ memory that only matches one way. Paraphrased questions still find the right
 memory through meaning; exact names, error strings, and file paths still win
 through keywords.
 
-#### Freshness: gentle recency decay
+**Only relevant memories are returned.** A memory enters the results only when
+it matches the query's words or its meaning is close enough:
+
+- Keywords: it contains every query term, or (for queries up to 64
+  characters) the whole query as a substring of its title or body. When
+  neither finds anything, memories that share at least one term with the
+  query and also pass the meaning floor get keyword credit.
+- Meaning: its cosine similarity to the query is at least
+  `SEARCH_MIN_SIMILARITY` (default **0.2**; `-1` turns the floor off).
+
+A query about something you never saved returns an empty list instead of the
+nearest unrelated memories.
+
+#### Freshness: a bounded recency boost
 
 $$
-\text{freshness}(m) = \frac{1}{1 + \dfrac{\text{age in days}}{H}}
+\text{freshness}(m) = 1 + R \times \frac{1}{1 + \dfrac{\text{age in days}}{H}}
 $$
 
 - Age is measured from the memory's last update (or creation, if never
   edited).
-- $H$ is `SEARCH_RECENCY_HALF_LIFE_DAYS` (default **30**).
+- $H$ is `SEARCH_RECENCY_HALF_LIFE_DAYS` (default **30**): half of the boost
+  is left after $H$ days.
+- $R$ is `SEARCH_RECENCY_WEIGHT` (default **0.25**, range 0 to 1; `0` turns
+  recency off).
 
-| Age | Freshness (H = 30) |
+| Age | Freshness (H = 30, R = 0.25) |
 | --- | --- |
-| Today | 1.00 |
-| 30 days | 0.50 |
-| 90 days | 0.25 |
-| 180 days | 0.14 |
-| 1 year | 0.08 |
+| Today | 1.25 |
+| 30 days | 1.13 |
+| 90 days | 1.06 |
+| 180 days | 1.04 |
+| 1 year | 1.02 |
 
-The curve drops quickly at first and then flattens. Old memories are
-discounted, **never zeroed out**. An old memory that is a much stronger match
-can still outrank a new, weak one.
+Freshness is a tie-breaker, not a decay. A memory edited today scores at most
+1.25 times an equally relevant old one, so age alone never pushes a strong old
+match below weak fresh ones.
 
 Editing a memory (for example with `revise`) resets its age. Keeping a
 memory accurate keeps it current.
@@ -197,8 +213,10 @@ $$
 \end{cases}
 $$
 
-$B$ is `SEARCH_PATH_BOOST` (default **0.15**). Memories saved with a
-`path_hint` are favored when an agent searches from that part of a codebase.
+$B$ is `SEARCH_PATH_BOOST` (default **0.15**). A search with a path hint
+returns memories whose `path_hint` contains it or whose body mentions it, as
+`about_path` does. Memories saved with a matching `path_hint` are favored over
+body-only mentions.
 
 #### Confidence: reinforced guides
 
@@ -224,8 +242,9 @@ $$
 \text{usage}(m) = 1 + W \times \ln(1 + n)
 $$
 
-- $n$ is how many times the memory has been recalled: returned by a search or
-  opened. Repeated hits within a few hours count once.
+- $n$ is how many times the memory has been recalled: returned by `find`,
+  `guide_find` or a search, or opened with `open`. Repeated hits within a few
+  hours count once.
 - $W$ is `MEMORY_USAGE_SCORE_WEIGHT` (default **0.05**).
 
 | Recalls | Usage boost |
@@ -250,26 +269,24 @@ Four memories match the same question:
 | C | Rank 2 by meaning and by keywords | 1 year | Entry |
 | D | Rank 3 by meaning and by keywords | 45 days | Guide, confidence 4 |
 
-With the defaults ($k = 60$, $H = 30$):
+With the defaults ($k = 60$, $H = 30$, $R = 0.25$):
 
 | Memory | Match | x Freshness | x Confidence | Score | Place |
 | --- | --- | --- | --- | --- | --- |
-| A | 2/61 = 0.0328 | 0.75 | 1.0 | **0.0246** | 1st |
-| D | 2/63 = 0.0317 | 0.40 | 1.4 | **0.0178** | 2nd |
-| B | 1/63 = 0.0159 | 0.97 | 1.0 | **0.0154** | 3rd |
-| C | 2/62 = 0.0323 | 0.08 | 1.0 | **0.0025** | 4th |
+| D | 2/63 = 0.0317 | 1.10 | 1.4 | **0.0489** | 1st |
+| A | 2/61 = 0.0328 | 1.19 | 1.0 | **0.0389** | 2nd |
+| C | 2/62 = 0.0323 | 1.02 | 1.0 | **0.0329** | 3rd |
+| B | 1/63 = 0.0159 | 1.24 | 1.0 | **0.0197** | 4th |
 
 What this shows:
 
-- **A** wins because it is both a strong match and recent.
-- **D** is older than B and slightly weaker, but it is a guide that has been
-  confirmed four times. Reinforcement keeps it above a brand-new, one-sided
-  match.
+- **D** wins: it matches both ways and is a guide confirmed four times.
+  Reinforcement lifts standing advice above a plain entry.
+- **A** is the strongest plain match and recent, so it comes next.
+- **C** is a strong match that has not been touched in a year. It still ranks
+  above B: age only trims the boost, it does not bury a good answer.
 - **B** is the newest memory, but it only matches one way. Freshness alone
   does not put it on top.
-- **C** is a strong match but has not been touched in a year. It sinks
-  instead of crowding the top results. It is still there: a more specific
-  question, or a quick `revise` to confirm it is still true, brings it back.
 
 ### Why this works long-term
 
@@ -279,8 +296,9 @@ notes. This formula avoids both.
 
 | Problem | How the formula handles it |
 | --- | --- |
-| Old but still-correct knowledge disappears | Freshness never reaches zero. A strong match survives age. |
-| Stale notes crowd out current ones | Freshness halves at 30 days and keeps falling. Close calls go to the newer memory. |
+| Old but still-correct knowledge disappears | Freshness is a bounded boost, never a penalty. A strong match survives age. |
+| Stale notes crowd out current ones | Fresh memories get up to a 25% boost. Close calls go to the newer memory. |
+| Unrelated memories fill the results | Only keyword matches and memories above the meaning floor are returned. |
 | Paraphrased questions miss | The meaning list finds memories without matching words. |
 | Exact names and error strings get fuzzy results | The keyword list rewards exact terms. Titles count more than bodies. |
 | Repeated advice piles up as duplicates | Guides merge and gain confidence instead of copying. |
@@ -298,6 +316,8 @@ All knobs are environment variables on the application. See
 | Variable | Default | Turn it up when | Turn it down when |
 | --- | --- | --- | --- |
 | `SEARCH_RECENCY_HALF_LIFE_DAYS` | `30` | Knowledge stays true for months (policies, architecture) | Facts change weekly |
+| `SEARCH_RECENCY_WEIGHT` | `0.25` | Newer memories should win close calls more often | Age should barely matter |
+| `SEARCH_MIN_SIMILARITY` | `0.2` | Loosely related results are noise | Paraphrased questions come back empty |
 | `RRF_K` | `60` | You want matches across both lists to matter more evenly | You want top-ranked hits to dominate |
 | `SEARCH_PATH_BOOST` | `0.15` | Path-scoped memories should win harder | Paths are noisy or unused |
 | `NEAR_DUP_THRESHOLD` | `0.92` | Too many legitimate variants are refused | Near-copies are slipping through |
@@ -326,8 +346,9 @@ Every new memory gets an expiry date:
 Agents pick the lifetime when they save: a short one for a temporary
 workaround, the default for an ordinary fact, permanent for a standing rule.
 
-**Each recall renews a live memory.** When a memory is returned by a search or
-opened, its expiry moves out to at least 90 days from now
+**Each recall renews a live memory.** When a memory is returned by `find`,
+`guide_find` or a search a person runs, or opened with the MCP `open` tool,
+its expiry moves out to at least 90 days from now
 (`MEMORY_TTL_EXTEND_DAYS`):
 
 $$
@@ -341,6 +362,11 @@ $$
 - Repeated recalls within `MEMORY_TTL_TOUCH_DEBOUNCE_HOURS` (default **6**)
   count once, so one busy session cannot keep junk alive.
 - Writing the same guide again also renews it.
+- Listings are not recalls. `browse`, `since`, `by_tag`, `about_path`,
+  `overlap_report` and viewing a memory's page in the web UI leave the expiry
+  and the recall count alone. A REST client that reads a memory in order to
+  use it can pass `?touch=true` to `GET /api/memories/{id}`; a REST search
+  that re-runs in the background can pass `touch=false`.
 
 **What happens at expiry.** An expired memory drops out of search, browse, and
 the other recall tools. It is not deleted: you can still list it with

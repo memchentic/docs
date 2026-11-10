@@ -88,8 +88,10 @@ Postgres must support the `vector` extension (for example
 | `SEARCH_DEFAULT_LIMIT` | `20` | Default number of search results when the client does not ask for a limit. |
 | `BROWSE_DEFAULT_LIMIT` | `50` | Default number of browse results when the client does not ask for a limit. |
 | `RESULT_MAX_LIMIT` | `100` | Maximum results allowed for search or browse. |
-| `SEARCH_RECENCY_HALF_LIFE_DAYS` | `30` | Age in days at which a memory's freshness weight drops to half. |
+| `SEARCH_RECENCY_HALF_LIFE_DAYS` | `30` | Age in days at which a memory's recency boost drops to half. |
+| `SEARCH_RECENCY_WEIGHT` | `0.25` | Largest recency boost (0 to 1). A memory edited now scores at most `1 +` this times an equally relevant old one. `0` turns recency off. |
 | `SEARCH_PATH_BOOST` | `0.15` | Extra weight for memories whose path hint matches the search path. |
+| `SEARCH_MIN_SIMILARITY` | `0.2` | Lowest meaning similarity (-1 to 1) at which a memory that matches no query keyword is still returned. `-1` turns the floor off. |
 | `NEAR_DUP_CANDIDATES` | `5` | How many nearest existing memories are checked for a near-duplicate on write. |
 | `OVERLAP_SCAN_LIMIT` | `2000` | How many recent memories the overlap report scans. |
 
