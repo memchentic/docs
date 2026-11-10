@@ -212,7 +212,10 @@ $$
 
 A new guide starts at $c = 1$. Every time an agent writes nearly the same
 guide again, memchentic merges it into the existing guide and raises $c$ by
-1 instead of creating a copy. A guide confirmed five times gets a 1.5x boost.
+1 instead of creating a copy, up to a cap of 5. A guide confirmed five times
+gets a 1.5x boost, and further repeats do not raise its rank. Only your own
+guides are merged this way; a matching guide by another member stays as it
+is.
 Advice that keeps proving useful rises; one-off advice does not.
 
 #### Usage: memories people actually recall

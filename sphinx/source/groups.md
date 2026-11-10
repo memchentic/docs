@@ -19,8 +19,16 @@ Memory groups are only about sharing entries and guides.
   agent).
 - The creator owns the group: invite or remove people, rename it, and delete
   it. Deleting a group also deletes the memories in it.
+- An invitation grants nothing until the invited person accepts it on the
+  **Groups** page (or declines it there). Until then the group's memories,
+  guides and roster stay hidden from them, and their writes never land in it.
+- Inviting by email gives the same answer whether or not the address has an
+  account, so the roster does not reveal who is registered.
 - Other members can use the group’s memories, leave the group, and otherwise
   cannot manage the roster or delete the group.
+- Changing a memory (`revise`) needs the same right as forgetting it: its
+  creator, the group creator, or an admin. Repeating `guide_write` only
+  reinforces your own guide; it never replaces another member's guide.
 - There is no separate viewer / editor ladder beyond creator vs everyone else.
 - The creator cannot be removed from the roster.
 
