@@ -15,6 +15,10 @@ Use the MCP URL for your Memchentic server:
 `your-host` is the machine or DNS name that reaches *your* Memchentic
 server — not your laptop unless the server is actually running there.
 
+In every setup the URL is `<BASE_URL>/mcp`. Set `BASE_URL` to the origin
+that clients really use (scheme, host and port): OAuth sign-in for MCP
+clients names `<BASE_URL>/mcp` as the protected resource.
+
 ## Choose how to sign in
 
 | Method | When to use |
