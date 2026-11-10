@@ -47,7 +47,8 @@ host ports; they are not application feature toggles.
 | `OAUTH_ISSUER` | *(empty)* | Issuer URL for an external provider. |
 | `OAUTH_AUDIENCE` | *(empty)* | Expected audience claim when verifying provider tokens. |
 | `OAUTH_JWKS_URI` | *(empty)* | JWKS URL for verifying provider tokens. |
-| `OAUTH_SCOPES` | `openid,profile,email` | Scopes requested from the provider. |
+| `OAUTH_NATIVE_REDIRECT_SCHEMES` | `cursor` | Comma-separated private-use URI schemes (RFC 8252) that native MCP clients may register as OAuth redirect URIs. |
+| `OAUTH_SCOPES` | *(blank)* | Comma-separated scopes requested from the provider. Blank uses the provider preset default (`read:user,user:email` for GitHub, `openid,profile,email,offline_access` for Entra, `openid,profile,email` otherwise). |
 
 When `OAUTH_PROVIDER` is not `internal`, register this redirect URI on the
 provider:
@@ -60,7 +61,7 @@ provider:
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `REGISTER_ENABLED` | `true` | Allow public self-registration for built-in login. Also toggleable later in System Settings. |
+| `REGISTER_ENABLED` | `true` | Allow public self-registration for built-in login. With an external `OAUTH_PROVIDER` it gates first-time single sign-on instead; an auth-group IdP bind always admits its members, and a bound Users auth group admits only its members. First-boot value only; afterwards System Settings is the source of truth. |
 | `SESSION_REMEMBER_DAYS` | `30` | Lifetime (days) for “remember me” sessions. Minimum `1`. |
 | `SESSION_BROWSER_HOURS` | `12` | Lifetime (hours) for normal browser sessions. Minimum `1`. |
 | `SESSION_COOKIE_SECURE` | *(derived)* | Force secure cookies: `true` / `false`. Leave unset to follow the `BASE_URL` scheme. |
