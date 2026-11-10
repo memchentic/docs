@@ -32,7 +32,7 @@ host ports; they are not application feature toggles.
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `ADMIN_EMAIL` | `admin@example.com` | Email for the first admin account. |
+| `ADMIN_EMAIL` | `admin@example.com` | Email for the break-glass admin account. Changing it demotes the previous break-glass account to an ordinary user at the next start, and revokes the sessions and API keys the newly named account held before. |
 | `ADMIN_DISPLAY_NAME` | `Admin` | Display name for that admin. |
 | `ADMIN_PASSWORD` | *(must set)* | **Required at start.** At least 16 characters; not a known placeholder. |
 | `ADMIN_API_KEY` | *(must set)* | **Required at start.** Break-glass API key for that admin. Prefer a personal API key from the UI for everyday agents. |

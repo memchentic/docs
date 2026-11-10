@@ -86,6 +86,13 @@ Authorization: Bearer <your-api-key>
 The key acts as you: your personal space and every group you belong to. Prefer
 a personal key over the admin API key for everyday agents.
 
+An administrator can cut a user off without deleting the account: open
+**Users**, open the user, and choose **Revoke sessions and keys**. That ends
+the user's browser sessions, OAuth refresh tokens and API keys at once. An
+access token that was already issued stays valid until it expires (up to one
+hour). The account, its password and its memories are kept; in an IdP-bound
+instance also disable the user at the IdP.
+
 Do not put both an API key and Authorize on the same server entry — pick one.
 
 ## By harness
