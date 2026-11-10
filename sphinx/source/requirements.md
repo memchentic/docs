@@ -42,7 +42,7 @@ fine for a first bring-up). Full list: {doc}`environment-variables`.
 | Piece | Notes |
 | --- | --- |
 | Public URL | Set `BASE_URL` and `CORS_ORIGINS` to the address people open in the browser |
-| Compose ports (defaults) | Web UI `18080`, HTTP API `18081`, agents / MCP `18082` |
+| Compose ports (defaults) | one port, `18080`, for the web UI, HTTP API (`/api`), and agents / MCP (`/mcp`) |
 | Kubernetes | Service on **8080**; Ingress is off by default |
 | Coding agents | Cursor, Claude Code, Copilot, Codex, or another MCP client after the stack is up — see {doc}`connect-mcp` |
 

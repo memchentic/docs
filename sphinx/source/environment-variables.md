@@ -16,9 +16,10 @@ host ports; they are not application feature toggles.
 | --- | --- | --- |
 | `COMPOSE_FILE` | `docker-compose.yaml` | Which Compose files to load. |
 | `APPLICATION_IMAGE` | `registry.memchentic.ai/memchentic/memchentic:latest` | Image for the Memchentic service (preferred registry; GHCR mirror available). |
-| `GUI_PORT` | `18080` | Host port for the web UI. |
-| `API_PORT` | `18081` | Host port for the HTTP API. |
-| `MCP_PORT` | `18082` | Host port for agent / MCP connections. |
+| `GUI_PORT` | `18080` | Host port for the web UI, HTTP API (`/api`), and MCP (`/mcp`). |
+| `BIND_ADDRESS` | `127.0.0.1` | Host address the port binds to. Use `0.0.0.0` to accept connections from other machines. |
+| `APPLICATION_MEMORY_LIMIT` | `2g` | Memory limit for the Memchentic container. |
+| `RUN_MIGRATIONS_ON_BOOT` | `true` | Run database migrations when the app starts. Set `false` when migrations run separately (`python -m memchentic.migrate`, the `migrate.yaml` Compose overlay, or the Helm `migrations.initContainer` option). |
 
 ## Public URL and logging
 

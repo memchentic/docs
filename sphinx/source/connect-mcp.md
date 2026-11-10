@@ -9,7 +9,7 @@ Use the MCP URL for your Memchentic server:
 
 | Setup | Typical URL |
 | --- | --- |
-| Default Compose ports | `http://your-host:18082/mcp` |
+| Default Compose port | `http://your-host:18080/mcp` |
 | Reverse proxy / one public site | `https://your-host/mcp` |
 
 `your-host` is the machine or DNS name that reaches *your* Memchentic
@@ -45,7 +45,7 @@ Example Cursor-style config (URL only):
 {
   "mcpServers": {
     "memchentic": {
-      "url": "http://your-host:18082/mcp"
+      "url": "http://your-host:18080/mcp"
     }
   }
 }
@@ -74,7 +74,7 @@ Authorization: Bearer <your-api-key>
 {
   "mcpServers": {
     "memchentic": {
-      "url": "http://your-host:18082/mcp",
+      "url": "http://your-host:18080/mcp",
       "headers": {
         "Authorization": "Bearer YOUR_API_KEY"
       }
