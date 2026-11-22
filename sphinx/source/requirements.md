@@ -32,7 +32,9 @@ are rejected.
 | --- | --- |
 | `ADMIN_PASSWORD` | At least **16** characters; not a placeholder such as `change-me` |
 | `ADMIN_API_KEY` | At least **16** characters; not a placeholder such as `change-me-admin-api-key` |
-| `POSTGRES_PASSWORD` | Non-empty password for the database role |
+| `POSTGRES_PASSWORD` | At least **16** characters; owner-role password (kept by Postgres from first start) |
+| `POSTGRES_APP_PASSWORD` | At least **16** characters; app-role password |
+| `ENCRYPTION_KEY` | At least **32** characters; encrypts signing keys and the SMTP password in Postgres |
 
 `ADMIN_EMAIL` / `ADMIN_DISPLAY_NAME` create the first admin user (defaults are
 fine for a first bring-up). Full list: {doc}`environment-variables`.
@@ -56,6 +58,7 @@ optional; when you use one, register the callback URL from
 | --- | --- |
 | External Postgres | You already run Postgres 16 + pgvector elsewhere |
 | External login provider | Google, GitHub, Okta, Authentik, Keycloak, Auth0, Entra, GitLab, or another OIDC provider |
+| Outbound SMTP | Confirmation email for new built-in registrations; configure with `SMTP_*` or later under System Settings → Mail |
 | GHCR login | Only if image pulls are private in your environment |
 | Marketplace plugin | Optional after MCP works — {doc}`install-marketplace` |
 

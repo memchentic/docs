@@ -39,7 +39,7 @@ host ports; they are not application feature toggles.
 | `ADMIN_DISPLAY_NAME` | `Admin` | Display name for that admin. |
 | `ADMIN_PASSWORD` | *(must set)* | **Required at start.** At least 16 characters; not a known placeholder. |
 | `ADMIN_API_KEY` | *(must set)* | **Required at start.** At least 16 characters. Break-glass API key for that admin. Prefer a personal API key from the UI for everyday agents. |
-| `ENCRYPTION_KEY` | *(must set)* | **Required at start.** At least 32 characters. Encrypts the signing keys stored in Postgres; after a change the stored keys cannot be read. |
+| `ENCRYPTION_KEY` | *(must set)* | **Required at start.** At least 32 characters. Encrypts signing keys and the SMTP password stored in Postgres; after a change those values cannot be read. |
 
 ## Login / identity
 
@@ -69,6 +69,26 @@ provider:
 | `SESSION_REMEMBER_DAYS` | `30` | Lifetime (days) for “remember me” sessions. Minimum `1`. |
 | `SESSION_BROWSER_HOURS` | `12` | Lifetime (hours) for normal browser sessions. Minimum `1`. |
 | `SESSION_COOKIE_SECURE` | *(derived)* | Force secure cookies: `true` / `false`. Leave unset (or blank) and the cookie is secure unless the `BASE_URL` host is a loopback host. Set `false` only for a plain-`http` origin. |
+
+## Outbound mail (SMTP)
+
+First-boot values only. Afterwards admins edit them under **System Settings →
+Mail**. Empty `SMTP_HOST` or `SMTP_FROM` leaves outbound mail off.
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `SMTP_HOST` | *(empty)* | SMTP server hostname. |
+| `SMTP_PORT` | `587` | SMTP port. |
+| `SMTP_USERNAME` | *(empty)* | Optional SMTP auth user. |
+| `SMTP_PASSWORD` | *(empty)* | Optional SMTP auth password (stored encrypted after first boot). |
+| `SMTP_FROM` | *(empty)* | From address for outbound mail. |
+| `SMTP_USE_TLS` | `true` | Use STARTTLS. |
+
+When mail is configured, new built-in registrations must confirm their email
+(link valid 24 hours) before they can sign in or create API keys. The
+break-glass admin and verified IdP sign-ins are not gated this way. Hygiene
+automation toggles live only in System Settings (not environment variables);
+see {doc}`hygiene`.
 
 ## Database
 

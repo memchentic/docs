@@ -53,7 +53,11 @@ When you (or an agent) save a memory, you choose a destination:
 Each memory lives in exactly one space. Who can see it is whoever belongs to
 that space.
 
+Inside a space you can optionally attach the memory to a **project** — a
+named work area that does not change ACL. See {doc}`projects`.
+
 ## Related
 
 - What entries and guides are: {doc}`memory`
+- Projects inside a space: {doc}`projects`
 - What a connected agent can do with spaces: {doc}`mcp-tools`

@@ -118,7 +118,11 @@ gets shorter object names after the upgrade.
 ## Useful settings
 
 `config.*` covers the public URL, login provider (default built-in), admin
-email, database name, search defaults, session lifetimes, CORS, and log level.
-Details: {doc}`environment-variables`.
+email, database name, search defaults, session lifetimes, CORS, log level,
+and optional outbound mail (`config.smtpHost`, `config.smtpPort`,
+`config.smtpUsername`, `config.smtpFrom`, `config.smtpUseTls`). Put
+`SMTP_PASSWORD` in the chart secret (inline, existing Secret, or
+ExternalSecret). Empty host or From leaves mail off; afterwards admins edit
+mail under System Settings. Details: {doc}`environment-variables`.
 
 Prefer Compose instead? See {doc}`docker`.

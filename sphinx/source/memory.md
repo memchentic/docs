@@ -20,6 +20,17 @@ Memories belong to a **space**: your private **personal** space, or an
 optional shared **group**. Personal is the default. Shared groups are covered
 in {doc}`groups`.
 
+Optional **projects** live inside a space as organisation labels (not a
+second ACL). Attach a memory with `project_id` when you save it. Details:
+{doc}`projects`.
+
+## Replacing an older memory
+
+When a new entry or guide replaces an older one in the same space, pass
+`supersedes` with the older id. Search hides the superseded target while the
+link is live; Hygiene lists the unresolved pair until you resolve it. Full
+detail: {doc}`hygiene`.
+
 ## Entries
 
 An **entry** is a durable record. Save one when the important part is *what
@@ -370,6 +381,9 @@ $$
   and the recall count alone. A REST client that reads a memory in order to
   use it can pass `?touch=true` to `GET /api/memories/{id}`; a REST search
   that re-runs in the background can pass `touch=false`.
+- A full open (MCP `open`, or REST/GUI with touch) also returns
+  `recent_recalls` — the newest recall events for that memory. Corpus charts
+  live on the Metrics page; see {doc}`metrics`.
 
 **What happens at expiry.** An expired memory drops out of search, browse, and
 the other recall tools. It is not deleted: you can still list it with

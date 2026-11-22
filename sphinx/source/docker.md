@@ -12,7 +12,7 @@ mirrored to `ghcr.io/memchentic/memchentic`.
 | --- | --- |
 | Memchentic image | From the registry as above (anonymous pull) |
 | Postgres 16 with pgvector | `pgvector/pgvector:pg16` works |
-| Secrets | Strong `ADMIN_PASSWORD` and `ADMIN_API_KEY` (16+ characters each) |
+| Secrets | Strong `ADMIN_PASSWORD`, `ADMIN_API_KEY`, `POSTGRES_PASSWORD`, and `POSTGRES_APP_PASSWORD` (16+ characters each), plus `ENCRYPTION_KEY` (32+) |
 
 The first start prepares the database automatically.
 
@@ -27,7 +27,7 @@ From a clone:
 ```bash
 cd docker
 cp .env.example .env
-# set strong ADMIN_PASSWORD and ADMIN_API_KEY (16+ characters each)
+# set the five required secrets (see Requirements / environment-variables)
 docker compose up -d
 ```
 
