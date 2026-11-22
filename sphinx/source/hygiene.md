@@ -40,6 +40,17 @@ The GUI Hygiene page offers the same actions under **Conflicts** and
 **Near-duplicates**. A third section lists soon-to-expire memories (bounded
 by `expiring_within_days` on `overlap_report`).
 
+## Consolidation proposals
+
+When **Propose consolidations** is on (see below), `overlap_report` also
+returns a `proposals` list derived from near-duplicate pairs. Each proposal
+names a `keep` id (newer row) and a `drop` id (older row) with
+`action: merge`. The GUI Hygiene page shows the same list.
+
+Resolve consolidations the same way as near-duplicates: `resolve_near_duplicate`
+with those ids, or the matching control on the Hygiene page. Auto-apply (below)
+runs the same merge during a scheduled pass.
+
 ## Automation (admin)
 
 Instance administrators can turn on scheduled cleanup under **System
@@ -49,6 +60,8 @@ Settings → Automation**:
 | --- | --- |
 | Auto-resolve conflicts | Forgets the superseded side of live `supersedes` pairs |
 | Auto-resolve near-duplicates | Forgets the older memory in each near-duplicate pair |
+| Propose consolidations | Adds merge proposals to `overlap_report` and the Hygiene UI |
+| Auto-apply consolidations | During a manual or scheduled pass, merges pending proposals (keep newer, forget older) |
 
 Passes run in the background (about every 15 minutes after a short boot
 delay) and cap how many rows they touch per pass. Admins can also run one

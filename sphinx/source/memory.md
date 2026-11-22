@@ -334,6 +334,8 @@ All knobs are environment variables on the application. See
 | `NEAR_DUP_THRESHOLD` | `0.92` | Too many legitimate variants are refused | Near-copies are slipping through |
 | `SEARCH_DEFAULT_LIMIT` | `20` | Humans browse results in the UI | Agents waste context on extra results |
 | `MEMORY_USAGE_SCORE_WEIGHT` | `0.05` | Frequently used memories should rank higher | Popularity is skewing results |
+| `SEARCH_USAGE_DECAY_WEIGHT` | `0.15` | Idle memories should fall back faster | Everything old feels buried |
+| `SEARCH_USAGE_DECAY_HALF_LIFE_DAYS` | `30` | Decay should track your review cadence | Decay is too aggressive or too slow |
 | `MEMORY_DEFAULT_TTL_DAYS` | `90` | Knowledge is slow to be revisited | The store grows faster than it is used |
 | `MEMORY_TTL_EXTEND_DAYS` | `90` | Memories used occasionally should stick | Only frequently used memories should stick |
 | `MEMORY_MAX_TTL_DAYS` | `730` | Hot memories should live longer (or `0` for no limit) | Retention policy requires periodic review |
@@ -394,3 +396,47 @@ it on its own.
 The result: a memory that people keep using stays indefinitely (up to the
 ceiling), and a memory nobody has needed for three months leaves search
 without anyone having to clean it up.
+
+## Revisions and history
+
+Every successful `revise` (and other field edits the server tracks) appends a
+**revision snapshot**: who changed what, when, and the prior values of the
+fields that moved. MCP `history` lists those rows newest-first (`limit`,
+`offset`). REST clients can use the memory history routes under the same ACL.
+
+`trace` answers “who created this and who last touched it?” — not the full edit
+trail. Use `history` when you need field-level audit.
+
+## Usefulness feedback
+
+Agents and humans can record one signal per memory per user: `useful`,
+`stale`, or `wrong`. MCP `feedback` writes it; the GUI offers the same control
+on a memory detail view. A new signal replaces your previous one on that memory.
+
+Search aggregates feedback into a bounded score per memory. Useful votes nudge
+ranking up; stale and wrong votes nudge it down (see `rerank_score` in the
+search path). Feedback does not delete or hide memories by itself — it steers
+recall toward what people still trust.
+
+## Usage decay in search
+
+Besides the positive **usage** boost from recall count, search applies a
+**usage-decay** factor when a memory has not been recalled recently. Age is
+measured from `last_recalled_at`, or `updated_at` when it was never recalled.
+Knobs: `SEARCH_USAGE_DECAY_WEIGHT` and
+`SEARCH_USAGE_DECAY_HALF_LIFE_DAYS` ({doc}`environment-variables`). Together
+with sliding TTL, this keeps long-idle notes from dominating results.
+
+## Ingest: suggest, then confirm
+
+**Ingest suggest** turns pasted prose — runbooks, meeting notes, shift
+handoffs, research summaries — into candidate rows without writing them.
+
+| Surface | Flow |
+| --- | --- |
+| MCP `ingest_suggest` | Pass `text`; optionally `use_llm: true` when the server has `MEMORY_LLM_*` configured. Returns `candidates` (kind, title, body, optional `entry_type` / `tags`). |
+| REST `POST /api/memories/ingest/suggest` | Same payload and response for integrators. |
+| Memories UI | **Suggest from text** on the Memories page: paste, **Suggest**, then **Remember** on each candidate you want kept. |
+
+Nothing is stored until you confirm. Heuristic splitting works out of the box;
+the LLM path is optional and provider-agnostic via `MEMORY_LLM_BASE_URL`.
