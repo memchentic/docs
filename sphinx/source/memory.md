@@ -447,4 +447,7 @@ admin-configured provider, then the **same** quality gate.
 | Memories UI | **Suggest from text** on the Memories page: paste, **Suggest**, edit title/body/type if needed, **Remember** or **Dismiss**. Confirm writes to personal space, or the default shared space when the Memories filter is set to group. |
 
 Nothing is stored until you confirm. Heuristics work with no LLM; the LLM path
-is optional and provider-agnostic via `MEMORY_LLM_BASE_URL`.
+is optional via `MEMORY_LLM_PROVIDER` (`openai` | `anthropic` | `google`) plus
+`MEMORY_LLM_API_KEY` / `MEMORY_LLM_MODEL` (and `MEMORY_LLM_BASE_URL` for
+OpenAI-compatible hosts such as OpenAI or OpenRouter). See
+{doc}`environment-variables`.

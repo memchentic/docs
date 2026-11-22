@@ -140,13 +140,22 @@ Postgres must support the `vector` extension (for example
 ## Optional LLM ingest
 
 Used only when callers set `use_llm: true` on ingest suggest (REST or MCP).
-Heuristic splitting works without these.
+Heuristics are the default; core remember/find never require an LLM.
+LLM suggestions still pass through the same quality gate as heuristics.
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `MEMORY_LLM_BASE_URL` | *(empty)* | OpenAI-compatible chat completions base URL. Empty disables the LLM path. |
-| `MEMORY_LLM_API_KEY` | *(empty)* | Bearer token for that endpoint. |
+| `MEMORY_LLM_PROVIDER` | `openai` | `openai` (OpenAI-compatible `/chat/completions`, including OpenRouter), `anthropic`, or `google`. |
+| `MEMORY_LLM_BASE_URL` | *(empty)* | For `openai`: required chat-completions base (for example `https://api.openai.com/v1` or `https://openrouter.ai/api/v1`). Empty disables the openai path. For `anthropic` / `google`: optional override of the public API host (`https://api.anthropic.com` / `https://generativelanguage.googleapis.com`). |
+| `MEMORY_LLM_API_KEY` | *(empty)* | Provider API key (Bearer for openai; required for anthropic and google). |
 | `MEMORY_LLM_MODEL` | `gpt-4o-mini` | Model id passed to the provider. |
+
+Example setups:
+
+- OpenAI: `MEMORY_LLM_PROVIDER=openai`, `MEMORY_LLM_BASE_URL=https://api.openai.com/v1`, key + model.
+- OpenRouter: same provider `openai`, `MEMORY_LLM_BASE_URL=https://openrouter.ai/api/v1`, key + model.
+- Anthropic: `MEMORY_LLM_PROVIDER=anthropic`, `MEMORY_LLM_API_KEY` set, model id; base URL optional.
+- Google Gemini: `MEMORY_LLM_PROVIDER=google`, `MEMORY_LLM_API_KEY` set, model id; base URL optional.
 
 ## Memory lifetime
 
