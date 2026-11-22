@@ -157,6 +157,24 @@ Example setups:
 - Anthropic: `MEMORY_LLM_PROVIDER=anthropic`, `MEMORY_LLM_API_KEY` set, model id; base URL optional.
 - Google Gemini: `MEMORY_LLM_PROVIDER=google`, `MEMORY_LLM_API_KEY` set, model id; base URL optional.
 
+## Optional decision-model ingest
+
+Optional System One gate (TypeSafe **Jev** hosted, or open-weight **Kev**
+self-hosted). Same HTTP API for both. When configured, every ingest suggest
+run re-scores shaped candidates after heuristics or optional LLM propose
+(kind / entry type / keep). Soft-fails to the proposed rows on error. Core
+remember/find never require it.
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `MEMORY_DECISION_BASE_URL` | *(empty)* | System One host root (for example a local Kev server `http://127.0.0.1:8009`, or your Jev/TypeSafe origin). Empty disables the decision gate. |
+| `MEMORY_DECISION_API_KEY` | *(empty)* | Bearer token when the server requires auth. |
+| `MEMORY_DECISION_MODEL` | `kev-latest` | Model id sent in the System One request body. |
+
+When both `MEMORY_LLM_*` and `MEMORY_DECISION_*` are set: generative propose
+(if `use_llm: true`) then decision re-score. Heuristics remain the default
+propose path when `use_llm` is false.
+
 ## Memory lifetime
 
 | Variable | Default | Description |

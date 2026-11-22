@@ -438,16 +438,19 @@ lists, chat turns, structured key/value) → classify (`entry` / `guide` and
 entry types when cues are clear) → filter (drop noise and secret-like blobs,
 dedupe, split oversized sections) → shape. Optional `messages` (role/content
 turns) are preferred over raw `text` when present. Optional `use_llm` uses an
-admin-configured provider, then the **same** quality gate.
+admin-configured chat provider to **propose** candidates, then the **same**
+quality gate. Separately, when `MEMORY_DECISION_*` is set, a System One
+decision model (**Jev** or **Kev**) **re-scores** shaped candidates (kind,
+entry type, keep/skip) after propose — with or without the LLM.
 
 | Surface | Flow |
 | --- | --- |
-| MCP `ingest_suggest` | Pass `text` and/or `messages`; optionally `use_llm: true` when `MEMORY_LLM_*` is configured. Returns `candidates` with `kind`, `title`, `body`, `confidence`, `reasons`, `source`, and optional `entry_type` / `tags` / path hints. |
+| MCP `ingest_suggest` | Pass `text` and/or `messages`; optionally `use_llm: true` when `MEMORY_LLM_*` is configured. Returns `candidates` with `kind`, `title`, `body`, `confidence`, `reasons`, `source`, and optional `entry_type` / `tags` / path hints. Decision gate runs automatically when configured (no extra tool arg). |
 | REST `POST /api/memories/ingest/suggest` | Same payload and response for integrators. |
 | Memories UI | **Suggest from text** on the Memories page: paste, **Suggest**, edit title/body/type if needed, **Remember** or **Dismiss**. Confirm writes to personal space, or the default shared space when the Memories filter is set to group. |
 
-Nothing is stored until you confirm. Heuristics work with no LLM; the LLM path
-is optional via `MEMORY_LLM_PROVIDER` (`openai` | `anthropic` | `google`) plus
-`MEMORY_LLM_API_KEY` / `MEMORY_LLM_MODEL` (and `MEMORY_LLM_BASE_URL` for
-OpenAI-compatible hosts such as OpenAI or OpenRouter). See
-{doc}`environment-variables`.
+Nothing is stored until you confirm. Heuristics work with no LLM and no
+decision model. Optional generative propose: `MEMORY_LLM_PROVIDER`
+(`openai` | `anthropic` | `google`) plus key/model (and base URL for
+OpenAI-compatible hosts). Optional decision re-score: `MEMORY_DECISION_BASE_URL`
+(+ key/model) for System One. See {doc}`environment-variables`.
