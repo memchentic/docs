@@ -21,6 +21,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 html_theme = "sphinx_rtd_theme"
 html_show_sphinx = False
 html_title = "Memchentic Docs"
+html_baseurl = "https://docs.memchentic.ai/"
 html_static_path = ["_static"]
 html_css_files = ["custom.css"]
 html_js_files = ["sidebar-scroll.js"]
@@ -30,6 +31,28 @@ html_theme_options = {
     "logo_only": True,
     # The theme scrolls the menu by the same amount as the page.
     "sticky_navigation": False,
+}
+html_meta = {
+    "description": (
+        "Memchentic documentation — self-hosted memory for agents across "
+        "sessions, tools, and people."
+    ),
+    "og:type": "website",
+    "og:site_name": "Memchentic Docs",
+    "og:title": "Memchentic Docs",
+    "og:description": (
+        "Memchentic documentation — self-hosted memory for agents across "
+        "sessions, tools, and people."
+    ),
+    "og:url": "https://docs.memchentic.ai/",
+    "og:image": "https://docs.memchentic.ai/_static/og-image.png",
+    "twitter:card": "summary_large_image",
+    "twitter:title": "Memchentic Docs",
+    "twitter:description": (
+        "Memchentic documentation — self-hosted memory for agents across "
+        "sessions, tools, and people."
+    ),
+    "twitter:image": "https://docs.memchentic.ai/_static/og-image.png",
 }
 
 pygments_style = "native"
