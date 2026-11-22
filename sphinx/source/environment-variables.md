@@ -114,9 +114,18 @@ Settings → Webhooks**:
 | `POSTGRES_DB` | `memchentic` | Database name. |
 | `POSTGRES_SSLMODE` | `prefer` | `disable`, `prefer`, `require`, `verify-ca` or `verify-full`. Use `verify-full` for a database on another host. |
 | `POSTGRES_SSLROOTCERT` | *(empty)* | CA file for `verify-ca` / `verify-full`. Empty uses the system CA store. On Helm, mount it with `extraVolumes` / `extraVolumeMounts`. |
+| `DB_POOL_SIZE` | `5` | SQLAlchemy pool size per application process. |
+| `DB_MAX_OVERFLOW` | `10` | Extra connections above `DB_POOL_SIZE` under load. |
+| `DB_POOL_TIMEOUT` | `30` | Seconds to wait for a free pooled connection. |
+
+Size pools so
+`replicas × (pool_size + max_overflow + 1 LISTEN) < postgres max_connections`
+with headroom. Compose stays single-process; Helm multi-replica is the
+productized scale path.
 
 Postgres must support the `vector` extension (for example
-`pgvector/pgvector:pg16`).
+`pgvector/pgvector:pg16`). The owner role must be a superuser when you point
+at external or operator-managed Postgres.
 
 ## Search defaults
 
