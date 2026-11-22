@@ -87,15 +87,27 @@ fields. See `helm/README.md` in the repository for more.
 
 ## Replicas, probes and service account
 
-Keep `replicaCount: 1`. More than one replica is not supported: login rate
-limits are counted per pod, and two pods starting together on an empty
-database can make one of them restart once. Schema migrations are serialized,
-so a rolling update is safe.
+`replicaCount` defaults to `1`. Multi-replica is supported: auth rate limits,
+bootstrap and hygiene automation coordinate through Postgres. Size
+`config.dbPoolSize` and `config.dbMaxOverflow` so
+
+```text
+replicas × (pool_size + max_overflow + 1 LISTEN) < postgres max_connections
+```
+
+with headroom. See `helm/examples/scaled.yaml` in the application repository.
+When running more than one replica, prefer
+`migrations.initContainer.enabled: true` so app pods do not hold the
+owner-role password. Boot DDL and Alembic still use a Postgres advisory lock
+across rolling updates.
+
+For an external or CloudNativePG database, see
+`helm/examples/external-cnpg.yaml`. The owner role (`POSTGRES_USER`) must be
+a Postgres superuser.
 
 Liveness and startup probes use `/api/health`. The readiness probe path is
-`probes.readinessPath` (default `/api/health`). Set it to `/api/ready` on an
-image that has that route. The pod then leaves the Service while the database
-is unreachable, and it is not restarted.
+`probes.readinessPath` (default `/api/ready`). The pod then leaves the
+Service while the database or embedder is not ready, and it is not restarted.
 
 The chart creates a ServiceAccount only with `serviceAccount.create: true`.
 The application never calls the Kubernetes API, so the token is not mounted
