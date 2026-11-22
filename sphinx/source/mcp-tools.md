@@ -62,12 +62,17 @@ Supersedes and overlap: {doc}`hygiene`.
 | Tool | What it does |
 | --- | --- |
 | `about_path` | Lists memories whose path hint or body contains a path; narrow with `repo_hint` or `space_id`, page with `offset` |
-| `trace` | Shows who created a memory, when, in which space, and who last edited it (no edit history) |
-| `overlap_report` | Flags near-duplicates, upcoming expiries (`expiring_within_days` bounds the window), and declared `conflicts` (`reason` `supersedes` when both ends are still visible); same data as the GUI Hygiene page |
+| `trace` | Shows who created a memory, when, in which space, and who last edited it (provenance only — use `history` for edits) |
+| `history` | Lists revision snapshots for one memory, newest first (`limit`, `offset`); each row has `source`, `changed_fields`, `revised_at`, and a `snapshot` of fields before that edit |
+| `feedback` | Records your usefulness signal on one memory: `useful`, `stale`, or `wrong` (replaces your prior signal for that memory) |
+| `export` | Returns full memory rows you can read, bounded by `limit` (defaults to browse default, capped at server max); filters match `browse` (`space_id`, `space_scope`, `kind`, `type`, `tags`, `include_expired`) |
+| `ingest_suggest` | Splits prose into memory candidates without writing (`text`, optional `use_llm` when the server has `MEMORY_LLM_BASE_URL` set); confirm each candidate with `remember` / `guide_write` or in the Memories UI |
+| `overlap_report` | Flags near-duplicates, **consolidation proposals** (`proposals` with `action: merge`), upcoming expiries (`expiring_within_days` bounds the window), and declared `conflicts` (`reason` `supersedes` when both ends are still visible); same data as the GUI Hygiene page |
 | `resolve_conflict` | Accepts a supersedes conflict from `overlap_report` by forgetting `b` (same ACL as `forget`) |
 | `resolve_near_duplicate` | Keeps one near-duplicate id and forgets the other (`keep` / `drop`; same ACL as `forget`) |
 
-Hygiene concepts and admin automation: {doc}`hygiene`.
+Hygiene concepts and admin automation: {doc}`hygiene`. Revisions, feedback, and
+ingest flow: {doc}`memory`.
 
 ## Results and errors
 
@@ -83,6 +88,7 @@ A failed call returns text that starts with a stable prefix: `invalid:`,
 `space_id` you cannot read is an error (`not_found:`), not an empty list.
 
 Tools declare MCP hints: listing and search tools are read-only;
+`feedback` is marked destructive (it writes a signal row).
 `guide_write`, `revise`, `relocate`, `forget`, `project_delete`,
 `resolve_conflict` and `resolve_near_duplicate` are marked destructive.
 

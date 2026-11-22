@@ -86,9 +86,20 @@ Mail**. Empty `SMTP_HOST` or `SMTP_FROM` leaves outbound mail off.
 
 When mail is configured, new built-in registrations must confirm their email
 (link valid 24 hours) before they can sign in or create API keys. The
-break-glass admin and verified IdP sign-ins are not gated this way. Hygiene
-automation toggles live only in System Settings (not environment variables);
-see {doc}`hygiene`.
+break-glass admin and verified IdP sign-ins are not gated this way. Hygiene automation toggles and consolidation flags live only in **System
+Settings → Automation** (not environment variables); see {doc}`hygiene`.
+
+## Webhooks and related system settings
+
+These are **not** environment variables. Admins configure them under **System
+Settings → Webhooks**:
+
+| Setting | Description |
+| --- | --- |
+| Enabled | When on, the server POSTs memory create/update/delete events to your HTTPS URL after commit. |
+| URL | Destination for those POSTs. |
+| Secret | Optional shared secret; when set, deliveries include an HMAC signature header (the value is never returned after save). |
+| Fail count | Read-only counter of delivery failures (resets when you save settings). |
 
 ## Database
 
@@ -123,6 +134,19 @@ Postgres must support the `vector` extension (for example
 | `NEAR_DUP_CANDIDATES` | `5` | How many nearest existing memories are checked for a near-duplicate on write. |
 | `OVERLAP_SCAN_LIMIT` | `2000` | How many recent memories the overlap report scans. |
 | `MEMORY_USAGE_SCORE_WEIGHT` | `0.05` | Extra weight for memories that are recalled often. |
+| `SEARCH_USAGE_DECAY_WEIGHT` | `0.15` | How much unused memories are down-ranked when they have not been recalled recently (0 to 1; `0` turns decay off). |
+| `SEARCH_USAGE_DECAY_HALF_LIFE_DAYS` | `30` | Half-life for that usage-decay factor, measured from `last_recalled_at` (or `updated_at` when never recalled). |
+
+## Optional LLM ingest
+
+Used only when callers set `use_llm: true` on ingest suggest (REST or MCP).
+Heuristic splitting works without these.
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `MEMORY_LLM_BASE_URL` | *(empty)* | OpenAI-compatible chat completions base URL. Empty disables the LLM path. |
+| `MEMORY_LLM_API_KEY` | *(empty)* | Bearer token for that endpoint. |
+| `MEMORY_LLM_MODEL` | `gpt-4o-mini` | Model id passed to the provider. |
 
 ## Memory lifetime
 
