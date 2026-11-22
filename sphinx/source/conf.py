@@ -32,28 +32,9 @@ html_theme_options = {
     # The theme scrolls the menu by the same amount as the page.
     "sticky_navigation": False,
 }
-html_meta = {
-    "description": (
-        "Memchentic documentation — self-hosted memory for agents across "
-        "sessions, tools, and people."
-    ),
-    "og:type": "website",
-    "og:site_name": "Memchentic Docs",
-    "og:title": "Memchentic Docs",
-    "og:description": (
-        "Memchentic documentation — self-hosted memory for agents across "
-        "sessions, tools, and people."
-    ),
-    "og:url": "https://docs.memchentic.ai/",
-    "og:image": "https://docs.memchentic.ai/_static/og-image.png",
-    "twitter:card": "summary_large_image",
-    "twitter:title": "Memchentic Docs",
-    "twitter:description": (
-        "Memchentic documentation — self-hosted memory for agents across "
-        "sessions, tools, and people."
-    ),
-    "twitter:image": "https://docs.memchentic.ai/_static/og-image.png",
-}
+# Open Graph / Twitter tags live in _templates/layout.html (extrahead).
+# Sphinx html_meta emits name= attributes and RTD does not surface them
+# reliably for social crawlers.
 
 pygments_style = "native"
 
